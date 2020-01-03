@@ -1,0 +1,272 @@
+use anyhow::Result;
+use chrono::{Local, NaiveDateTime};
+use deadpool_postgres::Pool;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct Siren {
+    #[serde(default)]
+    pub id: i64,
+    pub num_id: Option<i64>,
+    pub num_pass: Option<String>,
+    pub siren_type_id: Option<i64>,
+    pub address: Option<String>,
+    pub radio: Option<String>,
+    pub desk: Option<String>,
+    pub contact_id: Option<i64>,
+    pub company_id: Option<i64>,
+    pub latitude: Option<String>,
+    pub longitude: Option<String>,
+    pub stage: Option<i64>,
+    pub own: Option<String>,
+    pub note: Option<String>,
+    #[serde(skip_serializing)]
+    pub created_at: Option<NaiveDateTime>,
+    #[serde(skip_serializing)]
+    pub updated_at: Option<NaiveDateTime>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SirenList {
+    pub id: i64,
+    pub siren_type_name: Option<String>,
+    pub address: Option<String>,
+    pub contact_name: Option<String>,
+    pub phones: Option<Vec<i64>>,
+}
+
+impl Siren {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub async fn get(pool: &Pool, id: i64) -> Result<Siren> {
+        let mut client = pool.get().await?;
+        let stmt = client
+            .prepare(
+                "
+                    SELECT
+                        num_id,
+                        num_pass,
+                        siren_type_id,
+                        address,
+                        radio,
+                        desk,
+                        contact_id,
+                        company_id,
+                        latitude,
+                        longitude,
+                        stage,
+                        own,
+                        note,
+                        created_at,
+                        updated_at
+                    FROM
+                        sirens
+                    WHERE
+                        id = $1
+                ",
+            )
+            .await?;
+        let row = client.query_one(&stmt, &[&id]).await?;
+        let siren = Siren {
+            id,
+            num_id: row.get(0),
+            num_pass: row.get(1),
+            siren_type_id: row.get(2),
+            address: row.get(3),
+            radio: row.get(4),
+            desk: row.get(5),
+            contact_id: row.get(6),
+            company_id: row.get(7),
+            latitude: row.get(8),
+            longitude: row.get(9),
+            stage: row.get(10),
+            own: row.get(11),
+            note: row.get(12),
+            created_at: row.get(13),
+            updated_at: row.get(14),
+        };
+        Ok(siren)
+    }
+
+    pub async fn insert(pool: &Pool, siren: Siren) -> Result<Siren> {
+        let mut siren = siren;
+        let mut client = pool.get().await?;
+        let stmt = client
+            .prepare(
+                "
+                    INSERT INTO sirens
+                    (
+                        num_id,
+                        num_pass,
+                        siren_type_id,
+                        address,
+                        radio,
+                        desk,
+                        contact_id,
+                        company_id,
+                        latitude,
+                        longitude,
+                        stage,
+                        own,
+                        note,
+                        created_at,
+                        updated_at
+                    )
+                    VALUES
+                    (
+                        $1,
+                        $2,
+                        $3,
+                        $4,
+                        $5,
+                        $6,
+                        $7,
+                        $8,
+                        $9,
+                        $10,
+                        $11,
+                        $12,
+                        $13,
+                        $14,
+                        $15
+                    )
+                    RETURNING
+                        id
+                ",
+            )
+            .await?;
+        let row = client
+            .query_one(
+                &stmt,
+                &[
+                    &siren.num_id,
+                    &siren.num_pass,
+                    &siren.siren_type_id,
+                    &siren.address,
+                    &siren.radio,
+                    &siren.desk,
+                    &siren.contact_id,
+                    &siren.company_id,
+                    &siren.latitude,
+                    &siren.longitude,
+                    &siren.stage,
+                    &siren.own,
+                    &siren.note,
+                    &Local::now().naive_local(),
+                    &Local::now().naive_local(),
+                ],
+            )
+            .await?;
+        siren.id = row.get(0);
+        Ok(siren)
+    }
+
+    pub async fn update(pool: &Pool, siren: Siren) -> Result<u64> {
+        let mut client = pool.get().await?;
+        let stmt = client
+            .prepare(
+                "
+                    UPDATE sirens SET
+                        num_id = $2,
+                        num_pass = $3,
+                        siren_type_id = $4,
+                        address = $5,
+                        radio = $6,
+                        desk = $7,
+                        contact_id = $8,
+                        company_id = $9,
+                        latitude = $10,
+                        longitude = $11,
+                        stage = $12,
+                        own = $13,
+                        note = $14,
+                        updated_at = $15
+                    WHERE
+                        id = $1
+                ",
+            )
+            .await?;
+        Ok(client
+            .execute(
+                &stmt,
+                &[
+                    &siren.id,
+                    &siren.num_id,
+                    &siren.num_pass,
+                    &siren.siren_type_id,
+                    &siren.address,
+                    &siren.radio,
+                    &siren.desk,
+                    &siren.contact_id,
+                    &siren.company_id,
+                    &siren.latitude,
+                    &siren.longitude,
+                    &siren.stage,
+                    &siren.own,
+                    &siren.note,
+                    &Local::now().naive_local(),
+                ],
+            )
+            .await?)
+    }
+
+    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
+        let mut client = pool.get().await?;
+        let stmt = client
+            .prepare(
+                "
+                    DELETE FROM
+                        sirens
+                    WHERE
+                        id = $1
+                ",
+            )
+            .await?;
+        Ok(client.execute(&stmt, &[&id]).await?)
+    }
+}
+
+impl SirenList {
+    pub async fn get_all(pool: &Pool) -> Result<Vec<SirenList>> {
+        let mut sirens = Vec::new();
+        let mut client = pool.get().await?;
+        let stmt = client
+            .prepare(
+                "
+                    SELECT
+                        s.id,
+                        s.address,
+                        t.name AS siren_type_name,
+                        c.name AS contact_name,
+                        array_agg(DISTINCT ph.phone) AS phones
+                    FROM
+                        sirens AS s
+                    LEFT JOIN
+                        siren_types AS t ON s.siren_type_id = t.id
+                    LEFT JOIN
+                        contacts AS c ON s.contact_id = c.id
+                    LEFT JOIN
+                        phones AS ph ON s.contact_id = ph.contact_id AND ph.fax = false
+                    GROUP BY
+                        s.id,
+                        t.id,
+                        c.id
+                    ORDER BY
+                        t.name ASC
+                ",
+            )
+            .await?;
+        for row in client.query(&stmt, &[]).await? {
+            sirens.push(SirenList {
+                id: row.get(0),
+                siren_type_name: row.get(1),
+                address: row.get(2),
+                contact_name: row.get(3),
+                phones: row.get(4),
+            });
+        }
+        Ok(sirens)
+    }
+}
