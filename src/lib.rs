@@ -1,23 +1,23 @@
-#![allow(dead_code)]
+// #![allow(dead_code)]
 use deadpool_postgres::{Manager, Pool};
 use tokio_postgres::{Config, NoTls};
 
-mod certificate;
-mod company;
-mod contact;
-mod department;
-mod education;
-mod email;
-mod kind;
-mod phone;
-mod post;
-mod practice;
-mod rank;
-mod scope;
-mod select;
-mod siren;
-mod siren_type;
-mod tcc;
+pub mod certificate;
+pub mod company;
+pub mod contact;
+pub mod department;
+pub mod education;
+pub mod email;
+pub mod kind;
+pub mod phone;
+pub mod post;
+pub mod practice;
+pub mod rank;
+pub mod scope;
+pub mod select;
+pub mod siren;
+pub mod siren_type;
+pub mod tcc;
 
 fn get_config() -> Config {
     let mut config = Config::new();
