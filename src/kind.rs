@@ -30,7 +30,7 @@ impl Kind {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Kind> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -61,7 +61,7 @@ impl Kind {
 
     pub async fn insert(pool: &Pool, kind: Kind) -> Result<Kind> {
         let mut kind = kind;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -103,7 +103,7 @@ impl Kind {
     }
 
     pub async fn update(pool: &Pool, kind: Kind) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -132,7 +132,7 @@ impl Kind {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -150,7 +150,7 @@ impl Kind {
 impl KindList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<KindList>> {
         let mut kinds = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

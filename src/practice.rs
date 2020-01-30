@@ -47,7 +47,7 @@ impl Practice {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Practice> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -82,7 +82,7 @@ impl Practice {
 
     pub async fn insert(pool: &Pool, practice: Practice) -> Result<Practice> {
         let mut practice = practice;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -130,7 +130,7 @@ impl Practice {
     }
 
     pub async fn update(pool: &Pool, practice: Practice) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -163,7 +163,7 @@ impl Practice {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -181,7 +181,7 @@ impl Practice {
 impl PracticeList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<PracticeList>> {
         let mut practices = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -228,7 +228,7 @@ impl PracticeList {
 
     pub async fn get_by_company(pool: &Pool, company_id: i64) -> Result<Vec<PracticeList>> {
         let mut practices = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -279,7 +279,7 @@ impl PracticeList {
 impl PracticeShort {
     pub async fn get_near(pool: &Pool) -> Result<Vec<PracticeShort>> {
         let mut practices = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

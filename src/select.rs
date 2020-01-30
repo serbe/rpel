@@ -9,7 +9,7 @@ pub struct SelectItem {
 }
 
 async fn select_name(pool: &Pool, name: &str) -> Result<Vec<SelectItem>> {
-    let mut client = pool.get().await?;
+    let client = pool.get().await?;
     let stmt = client
         .prepare(
             "
@@ -51,7 +51,7 @@ impl SelectItem {
     }
 
     pub async fn post_all(pool: &Pool, go: bool) -> Result<Vec<SelectItem>> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

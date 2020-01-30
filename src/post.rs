@@ -30,7 +30,7 @@ impl Post {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Post> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -61,7 +61,7 @@ impl Post {
 
     pub async fn insert(pool: &Pool, post: Post) -> Result<Post> {
         let mut post = post;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -103,7 +103,7 @@ impl Post {
     }
 
     pub async fn update(pool: &Pool, post: Post) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -132,7 +132,7 @@ impl Post {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -150,7 +150,7 @@ impl Post {
 impl PostList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<PostList>> {
         let mut posts = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

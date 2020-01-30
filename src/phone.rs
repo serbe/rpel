@@ -22,7 +22,7 @@ impl Phone {
     }
 
     async fn insert(pool: &Pool, phone: Phone) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -87,7 +87,7 @@ impl Phone {
     }
 
     pub async fn delete_contacts(pool: &Pool, id: i64, fax: bool) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -104,7 +104,7 @@ impl Phone {
     }
 
     pub async fn delete_companies(pool: &Pool, id: i64, fax: bool) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

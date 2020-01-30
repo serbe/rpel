@@ -30,7 +30,7 @@ impl SirenType {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<SirenType> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -61,7 +61,7 @@ impl SirenType {
 
     pub async fn insert(pool: &Pool, siren_type: SirenType) -> Result<SirenType> {
         let mut siren_type = siren_type;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -103,7 +103,7 @@ impl SirenType {
     }
 
     pub async fn update(pool: &Pool, siren_type: SirenType) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -132,7 +132,7 @@ impl SirenType {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -150,7 +150,7 @@ impl SirenType {
 impl SirenTypeList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<SirenTypeList>> {
         let mut siren_types = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

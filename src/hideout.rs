@@ -91,7 +91,7 @@
 
 // // GetHideout - get one hideout by id
 // pub async fn GetHideout(pool: &Pool, id: i64) -> Result<Hideout> {
-// let mut client = pool.get().await?;
+// let client = pool.get().await?;
 // 	let mut hideout = Hideout::new();
 // 	if id == 0 {
 // 		Ok(hideout)

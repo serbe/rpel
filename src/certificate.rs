@@ -37,7 +37,7 @@ impl Certificate {
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Certificate> {
         let mut certificate = Certificate::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -70,7 +70,7 @@ impl Certificate {
 
     pub async fn insert(pool: &Pool, certificate: Certificate) -> Result<Certificate> {
         let mut certificate = certificate;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -118,7 +118,7 @@ impl Certificate {
     }
 
     pub async fn update(pool: &Pool, certificate: Certificate) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -151,7 +151,7 @@ impl Certificate {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -169,7 +169,7 @@ impl Certificate {
 impl CertificateList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<CertificateList>> {
         let mut certificates = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

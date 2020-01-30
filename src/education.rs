@@ -46,7 +46,7 @@ impl Education {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Education> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -81,7 +81,7 @@ impl Education {
 
     pub async fn insert(pool: &Pool, education: Education) -> Result<Education> {
         let mut education = education;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -126,7 +126,7 @@ impl Education {
     }
 
     pub async fn update(pool: &Pool, education: Education) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -159,7 +159,7 @@ impl Education {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -177,7 +177,7 @@ impl Education {
 impl EducationList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<EducationList>> {
         let mut educations = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -232,7 +232,7 @@ impl EducationList {
 impl EducationShort {
     pub async fn get_near(pool: &Pool) -> Result<Vec<EducationShort>> {
         let mut educations = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

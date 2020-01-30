@@ -21,7 +21,7 @@
 
 // // GetHideoutType - get one hideoutType by id
 // pub async fn GetHideoutType(pool: &Pool, id: i64) -> Result<HideoutType> {
-// let mut client = pool.get().await?;
+// let client = pool.get().await?;
 // 	let mut hideoutType = HideoutType::new();
 // 	if id == 0 {
 // 		Ok(hideoutType)
@@ -37,7 +37,7 @@
 
 // // GetHideoutTypeList - get hideoutType for list by id
 // pub async fn GetHideoutTypeList(pool: &Pool, id: i64) -> Result<HideoutTypeList> {
-// let mut client = pool.get().await?;
+// let client = pool.get().await?;
 // 	let mut hideoutType = HideoutTypeList::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name", "note").

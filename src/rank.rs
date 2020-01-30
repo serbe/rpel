@@ -28,7 +28,7 @@ impl Rank {
     }
 
     pub async fn get(pool: &Pool, id: i64) -> Result<Rank> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -57,7 +57,7 @@ impl Rank {
 
     pub async fn insert(pool: &Pool, rank: Rank) -> Result<Rank> {
         let mut rank = rank;
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -96,7 +96,7 @@ impl Rank {
     }
 
     pub async fn update(pool: &Pool, rank: Rank) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -123,7 +123,7 @@ impl Rank {
     }
 
     pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -141,7 +141,7 @@ impl Rank {
 impl RankList {
     pub async fn get_all(pool: &Pool) -> Result<Vec<RankList>> {
         let mut ranks = Vec::new();
-        let mut client = pool.get().await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

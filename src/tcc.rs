@@ -25,7 +25,7 @@
 
 // // // GetTcc - get one tcc by id
 // // pub async fn GetTcc(pool: &Pool, id: i64) -> Result<Tcc> {
-// let mut client = pool.get().await?;
+// let client = pool.get().await?;
 // // 	let mut tcc = Tcc::new();
 // // 	if id == 0 {
 // // 		Ok(tcc)
@@ -41,7 +41,7 @@
 
 // // // GetTccList - get all tcc for list
 // // pub async fn GetTccList(pool: &Pool, id: i64) -> Result<TccList> {
-// let mut client = pool.get().await?;
+// let client = pool.get().await?;
 // // 	let mut tccs = TccList::new();
 // // 	else { for row in &conn.query("
 // // 		Column("id", "address", "contact_id", "note").
