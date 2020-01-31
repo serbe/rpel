@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -29,8 +29,8 @@ impl SirenType {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<SirenType> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<SirenType> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,9 +59,9 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn insert(pool: &Pool, siren_type: SirenType) -> Result<SirenType> {
+    pub async fn insert(client: &Client, siren_type: SirenType) -> Result<SirenType> {
         let mut siren_type = siren_type;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -102,8 +102,8 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn update(pool: &Pool, siren_type: SirenType) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, siren_type: SirenType) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -131,8 +131,8 @@ impl SirenType {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -148,9 +148,9 @@ impl SirenType {
 }
 
 impl SirenTypeList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<SirenTypeList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<SirenTypeList>> {
         let mut siren_types = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

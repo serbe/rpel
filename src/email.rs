@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Deserialize, Serialize)]
@@ -20,8 +20,8 @@ impl Email {
         Default::default()
     }
 
-    async fn insert(pool: &Pool, email: Email) -> Result<u64> {
-        let client = pool.get().await?;
+    async fn insert(client: &Client, email: Email) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -58,30 +58,30 @@ impl Email {
             .await?)
     }
 
-    pub async fn update_contacts(pool: &Pool, id: i64, emails: Vec<String>) -> Result<()> {
-        Email::delete_contacts(pool, id).await?;
+    pub async fn update_contacts(client: &Client, id: i64, emails: Vec<String>) -> Result<()> {
+        Email::delete_contacts(client, id).await?;
         for value in emails {
             let mut email = Email::new();
             email.contact_id = Some(id);
             email.email = Some(value);
-            Email::insert(pool, email).await?;
+            Email::insert(client, email).await?;
         }
         Ok(())
     }
 
-    pub async fn update_companies(pool: &Pool, id: i64, emails: Vec<String>) -> Result<()> {
-        Email::delete_companies(pool, id).await?;
+    pub async fn update_companies(client: &Client, id: i64, emails: Vec<String>) -> Result<()> {
+        Email::delete_companies(client, id).await?;
         for value in emails {
             let mut email = Email::new();
             email.company_id = Some(id);
             email.email = Some(value);
-            Email::insert(pool, email).await?;
+            Email::insert(client, email).await?;
         }
         Ok(())
     }
 
-    pub async fn delete_contacts(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete_contacts(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -95,8 +95,8 @@ impl Email {
         Ok(client.execute(&stmt, &[&id]).await?)
     }
 
-    pub async fn delete_companies(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete_companies(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

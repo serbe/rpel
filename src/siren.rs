@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
@@ -40,8 +40,8 @@ impl Siren {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Siren> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Siren> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -90,9 +90,9 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn insert(pool: &Pool, siren: Siren) -> Result<Siren> {
+    pub async fn insert(client: &Client, siren: Siren) -> Result<Siren> {
         let mut siren = siren;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -163,8 +163,8 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn update(pool: &Pool, siren: Siren) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, siren: Siren) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -212,8 +212,8 @@ impl Siren {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -229,9 +229,9 @@ impl Siren {
 }
 
 impl SirenList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<SirenList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<SirenList>> {
         let mut sirens = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

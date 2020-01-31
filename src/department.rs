@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -27,8 +27,8 @@ impl Department {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Department> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Department> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -55,9 +55,9 @@ impl Department {
         Ok(department)
     }
 
-    pub async fn insert(pool: &Pool, department: Department) -> Result<Department> {
+    pub async fn insert(client: &Client, department: Department) -> Result<Department> {
         let mut department = department;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -95,8 +95,8 @@ impl Department {
         Ok(department)
     }
 
-    pub async fn update(pool: &Pool, department: Department) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, department: Department) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -122,8 +122,8 @@ impl Department {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -139,9 +139,9 @@ impl Department {
 }
 
 impl DepartmentList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<DepartmentList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<DepartmentList>> {
         let mut departments = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

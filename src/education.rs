@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -45,8 +45,8 @@ impl Education {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Education> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Education> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -79,9 +79,9 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn insert(pool: &Pool, education: Education) -> Result<Education> {
+    pub async fn insert(client: &Client, education: Education) -> Result<Education> {
         let mut education = education;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -125,8 +125,8 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn update(pool: &Pool, education: Education) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, education: Education) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -158,8 +158,8 @@ impl Education {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -175,9 +175,9 @@ impl Education {
 }
 
 impl EducationList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<EducationList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<EducationList>> {
         let mut educations = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -230,9 +230,9 @@ impl EducationList {
 }
 
 impl EducationShort {
-    pub async fn get_near(pool: &Pool) -> Result<Vec<EducationShort>> {
+    pub async fn get_near(client: &Client) -> Result<Vec<EducationShort>> {
         let mut educations = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

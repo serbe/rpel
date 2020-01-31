@@ -20,8 +20,8 @@
 // }
 
 // // GetHideoutType - get one hideoutType by id
-// pub async fn GetHideoutType(pool: &Pool, id: i64) -> Result<HideoutType> {
-// let client = pool.get().await?;
+// pub async fn GetHideoutType(client: &Client, id: i64) -> Result<HideoutType> {
+// // let client = client.get().await?;
 // 	let mut hideoutType = HideoutType::new();
 // 	if id == 0 {
 // 		Ok(hideoutType)
@@ -36,8 +36,8 @@
 // }
 
 // // GetHideoutTypeList - get hideoutType for list by id
-// pub async fn GetHideoutTypeList(pool: &Pool, id: i64) -> Result<HideoutTypeList> {
-// let client = pool.get().await?;
+// pub async fn GetHideoutTypeList(client: &Client, id: i64) -> Result<HideoutTypeList> {
+// // let client = client.get().await?;
 // 	let mut hideoutType = HideoutTypeList::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name", "note").
@@ -50,7 +50,7 @@
 // }
 
 // // GetHideoutTypeListAll - get all hideoutType for list
-// pub async fn GetHideoutTypeListAll(pool: &Pool, id: i64) -> Result<Vec<HideoutTypeList>> {
+// pub async fn GetHideoutTypeListAll(client: &Client, id: i64) -> Result<Vec<HideoutTypeList>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name", "note").
@@ -63,7 +63,7 @@
 // }
 
 // // GetHideoutTypeSelect - get hideoutType for select by id
-// pub async fn GetHideoutTypeSelect(pool: &Pool, id: i64) -> Result<Vec<SelectItem>> {
+// pub async fn GetHideoutTypeSelect(client: &Client, id: i64) -> Result<Vec<SelectItem>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name").
@@ -76,7 +76,7 @@
 // }
 
 // // GetHideoutTypeSelectAll - get all hideoutType for select
-// pub async fn GetHideoutTypeSelectAll(pool: &Pool, id: i64) -> Result<Vec<SelectItem>> {
+// pub async fn GetHideoutTypeSelectAll(client: &Client, id: i64) -> Result<Vec<SelectItem>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name").

@@ -24,8 +24,8 @@
 // // }
 
 // // // GetTcc - get one tcc by id
-// // pub async fn GetTcc(pool: &Pool, id: i64) -> Result<Tcc> {
-// let client = pool.get().await?;
+// // pub async fn GetTcc(client: &Client, id: i64) -> Result<Tcc> {
+// // let client = client.get().await?;
 // // 	let mut tcc = Tcc::new();
 // // 	if id == 0 {
 // // 		Ok(tcc)
@@ -40,8 +40,8 @@
 // // }
 
 // // // GetTccList - get all tcc for list
-// // pub async fn GetTccList(pool: &Pool, id: i64) -> Result<TccList> {
-// let client = pool.get().await?;
+// // pub async fn GetTccList(client: &Client, id: i64) -> Result<TccList> {
+// // let client = client.get().await?;
 // // 	let mut tccs = TccList::new();
 // // 	else { for row in &conn.query("
 // // 		Column("id", "address", "contact_id", "note").
@@ -54,7 +54,7 @@
 // // }
 
 // // // GetTccListAll - get all tcc for list
-// // pub async fn GetTccListAll(pool: &Pool, id: i64) -> Result<Vec<TccList>> {
+// // pub async fn GetTccListAll(client: &Client, id: i64) -> Result<Vec<TccList>> {
 // // 	let mut tccs = Vec::new();
 // // 	else { for row in &conn.query("
 // // 		Column("id", "address", "contact_id", "note").

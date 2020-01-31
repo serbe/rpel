@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::contact::ContactShort;
@@ -46,8 +46,8 @@ impl Company {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Company> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Company> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -77,8 +77,8 @@ impl Company {
             )
             .await?;
         let row = client.query_one(&stmt, &[&id]).await?;
-        let practices = PracticeList::get_by_company(pool, id).await.ok();
-        let contacts = ContactShort::get_by_company(pool, id).await.ok();
+        let practices = PracticeList::get_by_company(client, id).await.ok();
+        let contacts = ContactShort::get_by_company(client, id).await.ok();
         let company = Company {
             id,
             name: row.get(0),
@@ -96,9 +96,9 @@ impl Company {
         Ok(company)
     }
 
-    pub async fn insert(pool: &Pool, company: Company) -> Result<Company> {
+    pub async fn insert(client: &Client, company: Company) -> Result<Company> {
         let mut company = company;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -140,19 +140,19 @@ impl Company {
             .await?;
         company.id = row.get(0);
         if let Some(emails) = company.emails.clone() {
-            Email::update_companies(pool, company.id, emails).await?;
+            Email::update_companies(client, company.id, emails).await?;
         }
         if let Some(phones) = company.phones.clone() {
-            Phone::update_companies(pool, company.id, false, phones).await?;
+            Phone::update_companies(client, company.id, false, phones).await?;
         }
         if let Some(faxes) = company.faxes.clone() {
-            Phone::update_companies(pool, company.id, true, faxes).await?;
+            Phone::update_companies(client, company.id, true, faxes).await?;
         }
         Ok(company)
     }
 
-    pub async fn update(pool: &Pool, company: Company) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, company: Company) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -181,22 +181,22 @@ impl Company {
             )
             .await?;
         if let Some(emails) = company.emails.clone() {
-            Email::update_companies(pool, company.id, emails).await?;
+            Email::update_companies(client, company.id, emails).await?;
         }
         if let Some(phones) = company.phones.clone() {
-            Phone::update_companies(pool, company.id, false, phones).await?;
+            Phone::update_companies(client, company.id, false, phones).await?;
         }
         if let Some(faxes) = company.faxes.clone() {
-            Phone::update_companies(pool, company.id, true, faxes).await?;
+            Phone::update_companies(client, company.id, true, faxes).await?;
         }
         Ok(result)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
-        Phone::delete_companies(&pool, id, true).await?;
-        Phone::delete_companies(&pool, id, false).await?;
-        Email::delete_companies(&pool, id).await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
+        Phone::delete_companies(&client, id, true).await?;
+        Phone::delete_companies(&client, id, false).await?;
+        Email::delete_companies(&client, id).await?;
         let stmt = client
             .prepare(
                 "
@@ -212,9 +212,9 @@ impl Company {
 }
 
 impl CompanyList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<CompanyList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<CompanyList>> {
         let mut companies = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -27,8 +27,8 @@ impl Rank {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Rank> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Rank> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -55,9 +55,9 @@ impl Rank {
         Ok(rank)
     }
 
-    pub async fn insert(pool: &Pool, rank: Rank) -> Result<Rank> {
+    pub async fn insert(client: &Client, rank: Rank) -> Result<Rank> {
         let mut rank = rank;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -95,8 +95,8 @@ impl Rank {
         Ok(rank)
     }
 
-    pub async fn update(pool: &Pool, rank: Rank) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, rank: Rank) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -122,8 +122,8 @@ impl Rank {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -139,9 +139,9 @@ impl Rank {
 }
 
 impl RankList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<RankList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<RankList>> {
         let mut ranks = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

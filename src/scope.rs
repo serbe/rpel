@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -27,8 +27,8 @@ impl Scope {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Scope> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Scope> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -55,9 +55,9 @@ impl Scope {
         Ok(scope)
     }
 
-    pub async fn insert(pool: &Pool, scope: Scope) -> Result<Scope> {
+    pub async fn insert(client: &Client, scope: Scope) -> Result<Scope> {
         let mut scope = scope;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -95,8 +95,8 @@ impl Scope {
         Ok(scope)
     }
 
-    pub async fn update(pool: &Pool, scope: Scope) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, scope: Scope) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -122,8 +122,8 @@ impl Scope {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -139,9 +139,9 @@ impl Scope {
 }
 
 impl ScopeList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<ScopeList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<ScopeList>> {
         let mut scopes = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

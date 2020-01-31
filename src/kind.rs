@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
+use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Serialize)]
@@ -29,8 +29,8 @@ impl Kind {
         Default::default()
     }
 
-    pub async fn get(pool: &Pool, id: i64) -> Result<Kind> {
-        let client = pool.get().await?;
+    pub async fn get(client: &Client, id: i64) -> Result<Kind> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,9 +59,9 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn insert(pool: &Pool, kind: Kind) -> Result<Kind> {
+    pub async fn insert(client: &Client, kind: Kind) -> Result<Kind> {
         let mut kind = kind;
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -102,8 +102,8 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn update(pool: &Pool, kind: Kind) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn update(client: &Client, kind: Kind) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -131,8 +131,8 @@ impl Kind {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool, id: i64) -> Result<u64> {
-        let client = pool.get().await?;
+    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -148,9 +148,9 @@ impl Kind {
 }
 
 impl KindList {
-    pub async fn get_all(pool: &Pool) -> Result<Vec<KindList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<KindList>> {
         let mut kinds = Vec::new();
-        let client = pool.get().await?;
+        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

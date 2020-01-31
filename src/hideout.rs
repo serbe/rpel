@@ -90,8 +90,8 @@
 // }
 
 // // GetHideout - get one hideout by id
-// pub async fn GetHideout(pool: &Pool, id: i64) -> Result<Hideout> {
-// let client = pool.get().await?;
+// pub async fn GetHideout(client: &Client, id: i64) -> Result<Hideout> {
+// // let client = client.get().await?;
 // 	let mut hideout = Hideout::new();
 // 	if id == 0 {
 // 		Ok(hideout)
@@ -106,7 +106,7 @@
 // }
 
 // // GetHideoutList - get all hideout for list
-// pub async fn GetHideoutList(pool: &Pool, id: i64) -> Result<Vec<HideoutList>> {
+// pub async fn GetHideoutList(client: &Client, id: i64) -> Result<Vec<HideoutList>> {
 // 	let mut $1 = Vec::new();
 // 	for row in &conn.query("
 // 		SELECT
