@@ -28,7 +28,7 @@ pub struct Contact {
     pub educations: Option<Vec<String>>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ContactList {
     pub id: i64,
     pub name: Option<String>,
@@ -39,7 +39,7 @@ pub struct ContactList {
     pub faxes: Option<Vec<i64>>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ContactShort {
     pub id: i64,
     pub name: Option<String>,

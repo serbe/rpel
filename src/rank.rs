@@ -15,7 +15,7 @@ pub struct Rank {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct RankList {
     pub id: i64,
     pub name: Option<String>,

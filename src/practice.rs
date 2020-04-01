@@ -18,7 +18,7 @@ pub struct Practice {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct PracticeList {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -31,7 +31,7 @@ pub struct PracticeList {
     pub date_str: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct PracticeShort {
     pub id: i64,
     pub company_id: Option<i64>,

@@ -16,7 +16,7 @@ pub struct Post {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct PostList {
     pub id: i64,
     pub name: Option<String>,

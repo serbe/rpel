@@ -1,8 +1,8 @@
 use anyhow::Result;
 use deadpool_postgres::Client;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct SelectItem {
     pub id: i64,
     pub name: Option<String>,

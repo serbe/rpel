@@ -18,7 +18,7 @@ pub struct Certificate {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct CertificateList {
     pub id: i64,
     pub num: Option<String>,

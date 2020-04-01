@@ -29,7 +29,7 @@ pub struct Company {
     pub contacts: Option<Vec<ContactShort>>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct CompanyList {
     pub id: i64,
     pub name: Option<String>,

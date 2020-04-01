@@ -18,7 +18,7 @@ pub struct Education {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct EducationList {
     pub id: i64,
     pub contact_id: Option<i64>,
@@ -32,7 +32,7 @@ pub struct EducationList {
     pub note: Option<String>,
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct EducationShort {
     pub id: i64,
     pub contact_id: Option<i64>,
