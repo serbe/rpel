@@ -90,6 +90,7 @@ impl Contact {
             )
             .await.with_context(|| format!("Failed prepare get contact {}", &id))?;
         let row = client.query_one(&stmt, &[&id]).await.with_context(|| format!("Failed query one get contact {}", &id))?;
+        println!("{} {:?}", row.len(), row.columns());
         let contact = Contact {
             id,
             name: row.get(0),
