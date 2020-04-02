@@ -28,7 +28,6 @@ impl Department {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Department> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -57,7 +56,6 @@ impl Department {
 
     pub async fn insert(client: &Client, department: Department) -> Result<Department> {
         let mut department = department;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -96,7 +94,6 @@ impl Department {
     }
 
     pub async fn update(client: &Client, department: Department) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -123,7 +120,6 @@ impl Department {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -141,7 +137,6 @@ impl Department {
 impl DepartmentList {
     pub async fn get_all(client: &Client) -> Result<Vec<DepartmentList>> {
         let mut departments = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

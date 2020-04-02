@@ -28,7 +28,6 @@ impl Rank {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Rank> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -57,7 +56,6 @@ impl Rank {
 
     pub async fn insert(client: &Client, rank: Rank) -> Result<Rank> {
         let mut rank = rank;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -96,7 +94,6 @@ impl Rank {
     }
 
     pub async fn update(client: &Client, rank: Rank) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -123,7 +120,6 @@ impl Rank {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -141,7 +137,6 @@ impl Rank {
 impl RankList {
     pub async fn get_all(client: &Client) -> Result<Vec<RankList>> {
         let mut ranks = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

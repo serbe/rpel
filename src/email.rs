@@ -21,7 +21,6 @@ impl Email {
     }
 
     async fn insert(client: &Client, email: Email) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -81,7 +80,6 @@ impl Email {
     }
 
     pub async fn delete_contacts(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -96,7 +94,6 @@ impl Email {
     }
 
     pub async fn delete_companies(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

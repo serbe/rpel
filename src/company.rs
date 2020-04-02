@@ -47,7 +47,6 @@ impl Company {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Company> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -98,7 +97,6 @@ impl Company {
 
     pub async fn insert(client: &Client, company: Company) -> Result<Company> {
         let mut company = company;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -152,7 +150,6 @@ impl Company {
     }
 
     pub async fn update(client: &Client, company: Company) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -193,7 +190,6 @@ impl Company {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         Phone::delete_companies(&client, id, true).await?;
         Phone::delete_companies(&client, id, false).await?;
         Email::delete_companies(&client, id).await?;
@@ -214,7 +210,6 @@ impl Company {
 impl CompanyList {
     pub async fn get_all(client: &Client) -> Result<Vec<CompanyList>> {
         let mut companies = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

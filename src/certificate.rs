@@ -37,7 +37,6 @@ impl Certificate {
 
     pub async fn get(client: &Client, id: i64) -> Result<Certificate> {
         let mut certificate = Certificate::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -70,7 +69,6 @@ impl Certificate {
 
     pub async fn insert(client: &Client, certificate: Certificate) -> Result<Certificate> {
         let mut certificate = certificate;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -118,7 +116,6 @@ impl Certificate {
     }
 
     pub async fn update(client: &Client, certificate: Certificate) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -151,7 +148,6 @@ impl Certificate {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -169,7 +165,6 @@ impl Certificate {
 impl CertificateList {
     pub async fn get_all(client: &Client) -> Result<Vec<CertificateList>> {
         let mut certificates = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

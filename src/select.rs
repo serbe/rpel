@@ -51,7 +51,6 @@ impl SelectItem {
     }
 
     pub async fn post_all(client: &Client, go: bool) -> Result<Vec<SelectItem>> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

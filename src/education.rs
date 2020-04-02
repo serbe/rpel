@@ -46,7 +46,6 @@ impl Education {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Education> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -81,7 +80,6 @@ impl Education {
 
     pub async fn insert(client: &Client, education: Education) -> Result<Education> {
         let mut education = education;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -126,7 +124,6 @@ impl Education {
     }
 
     pub async fn update(client: &Client, education: Education) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -159,7 +156,6 @@ impl Education {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -177,7 +173,6 @@ impl Education {
 impl EducationList {
     pub async fn get_all(client: &Client) -> Result<Vec<EducationList>> {
         let mut educations = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -232,7 +227,6 @@ impl EducationList {
 impl EducationShort {
     pub async fn get_near(client: &Client) -> Result<Vec<EducationShort>> {
         let mut educations = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

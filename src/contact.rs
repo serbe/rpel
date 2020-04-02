@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
@@ -54,7 +54,6 @@ impl Contact {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Contact> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -89,8 +88,8 @@ impl Contact {
                         c.id
                 ",
             )
-            .await?;
-        let row = client.query_one(&stmt, &[&id]).await?;
+            .await.with_context(|| format!("Failed prepare get contact {}", &id))?;
+        let row = client.query_one(&stmt, &[&id]).await.with_context(|| format!("Failed query one get contact {}", &id))?;
         let contact = Contact {
             id,
             name: row.get(0),
@@ -113,7 +112,6 @@ impl Contact {
 
     pub async fn insert(client: &Client, contact: Contact) -> Result<Contact> {
         let mut contact = contact;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -179,7 +177,6 @@ impl Contact {
     }
 
     pub async fn update(client: &Client, contact: Contact) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -227,7 +224,6 @@ impl Contact {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         Phone::delete_contacts(client, id, true).await?;
         Phone::delete_contacts(client, id, false).await?;
         Email::delete_contacts(client, id).await?;
@@ -248,7 +244,6 @@ impl Contact {
 impl ContactList {
     pub async fn get_all(client: &Client) -> Result<Vec<ContactList>> {
         let mut contacts = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -297,7 +292,6 @@ impl ContactList {
 impl ContactShort {
     pub async fn get_by_company(client: &Client, company_id: i64) -> Result<Vec<ContactShort>> {
         let mut contacts = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -319,7 +313,7 @@ impl ContactShort {
                         c.company_id = $1
                 ",
             )
-            .await?;
+            .await.with_context(|| format!("Failed prepare get_by_company {}", &company_id))?;
         for row in client.query(&stmt, &[&company_id]).await? {
             contacts.push(ContactShort {
                 id: row.get(0),

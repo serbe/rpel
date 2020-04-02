@@ -30,7 +30,6 @@ impl Kind {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Kind> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -61,7 +60,6 @@ impl Kind {
 
     pub async fn insert(client: &Client, kind: Kind) -> Result<Kind> {
         let mut kind = kind;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -103,7 +101,6 @@ impl Kind {
     }
 
     pub async fn update(client: &Client, kind: Kind) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -132,7 +129,6 @@ impl Kind {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -150,7 +146,6 @@ impl Kind {
 impl KindList {
     pub async fn get_all(client: &Client) -> Result<Vec<KindList>> {
         let mut kinds = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

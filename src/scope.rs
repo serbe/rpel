@@ -28,7 +28,6 @@ impl Scope {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Scope> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -57,7 +56,6 @@ impl Scope {
 
     pub async fn insert(client: &Client, scope: Scope) -> Result<Scope> {
         let mut scope = scope;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -96,7 +94,6 @@ impl Scope {
     }
 
     pub async fn update(client: &Client, scope: Scope) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -123,7 +120,6 @@ impl Scope {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -141,7 +137,6 @@ impl Scope {
 impl ScopeList {
     pub async fn get_all(client: &Client) -> Result<Vec<ScopeList>> {
         let mut scopes = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "

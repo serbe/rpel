@@ -30,7 +30,6 @@ impl Post {
     }
 
     pub async fn get(client: &Client, id: i64) -> Result<Post> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -61,7 +60,6 @@ impl Post {
 
     pub async fn insert(client: &Client, post: Post) -> Result<Post> {
         let mut post = post;
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -103,7 +101,6 @@ impl Post {
     }
 
     pub async fn update(client: &Client, post: Post) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -132,7 +129,6 @@ impl Post {
     }
 
     pub async fn delete(client: &Client, id: i64) -> Result<u64> {
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -150,7 +146,6 @@ impl Post {
 impl PostList {
     pub async fn get_all(client: &Client) -> Result<Vec<PostList>> {
         let mut posts = Vec::new();
-        // let client = client.get().await?;
         let stmt = client
             .prepare(
                 "
