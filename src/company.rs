@@ -20,13 +20,13 @@ pub struct Company {
     pub created_at: Option<NaiveDateTime>,
     #[serde(skip_serializing)]
     pub updated_at: Option<NaiveDateTime>,
-    pub emails: Option<Vec<String>>,
-    pub phones: Option<Vec<i64>>,
-    pub faxes: Option<Vec<i64>>,
+    pub emails: Vec<String>,
+    pub phones: Vec<i64>,
+    pub faxes: Vec<i64>,
     #[serde(skip_deserializing)]
-    pub practices: Option<Vec<PracticeList>>,
+    pub practices: Vec<PracticeList>,
     #[serde(skip_deserializing)]
-    pub contacts: Option<Vec<ContactShort>>,
+    pub contacts: Vec<ContactShort>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -35,10 +35,10 @@ pub struct CompanyList {
     pub name: Option<String>,
     pub address: Option<String>,
     pub scope_name: Option<String>,
-    pub emails: Option<Vec<String>>,
-    pub phones: Option<Vec<i64>>,
-    pub faxes: Option<Vec<i64>>,
-    pub practices: Option<Vec<NaiveDate>>,
+    pub emails: Vec<String>,
+    pub phones: Vec<i64>,
+    pub faxes: Vec<i64>,
+    pub practices: Vec<NaiveDate>,
 }
 
 impl Company {
@@ -57,9 +57,9 @@ impl Company {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_agg(DISTINCT e.email) AS emails,
-                        array_agg(DISTINCT ph.phone) AS phones,
-                        array_agg(DISTINCT f.phone) AS faxes
+                        array_remove(array_agg(e.email), NULL) AS emails,
+                        array_remove(array_agg(ph.phone), NULL) AS phones,
+                        array_remove(array_agg(f.phone), NULL) AS faxes
                     FROM
                         companies AS c
                     LEFT JOIN
@@ -76,8 +76,8 @@ impl Company {
             )
             .await?;
         let row = client.query_one(&stmt, &[&id]).await?;
-        let practices = PracticeList::get_by_company(client, id).await.ok();
-        let contacts = ContactShort::get_by_company(client, id).await.ok();
+        let practices = PracticeList::get_by_company(client, id).await?;
+        let contacts = ContactShort::get_by_company(client, id).await?;
         let company = Company {
             id,
             name: row.try_get(0)?,
@@ -137,15 +137,9 @@ impl Company {
             )
             .await?;
         company.id = row.get(0);
-        if let Some(emails) = company.emails.clone() {
-            Email::update_companies(client, company.id, emails).await?;
-        }
-        if let Some(phones) = company.phones.clone() {
-            Phone::update_companies(client, company.id, false, phones).await?;
-        }
-        if let Some(faxes) = company.faxes.clone() {
-            Phone::update_companies(client, company.id, true, faxes).await?;
-        }
+        Email::update_companies(client, company.id, company.emails.clone()).await?;
+        Phone::update_companies(client, company.id, false, company.phones.clone()).await?;
+        Phone::update_companies(client, company.id, true, company.faxes.clone()).await?;
         Ok(company)
     }
 
@@ -177,15 +171,10 @@ impl Company {
                 ],
             )
             .await?;
-        if let Some(emails) = company.emails.clone() {
-            Email::update_companies(client, company.id, emails).await?;
-        }
-        if let Some(phones) = company.phones.clone() {
-            Phone::update_companies(client, company.id, false, phones).await?;
-        }
-        if let Some(faxes) = company.faxes.clone() {
-            Phone::update_companies(client, company.id, true, faxes).await?;
-        }
+        Email::update_companies(client, company.id, company.emails).await?;
+        Phone::update_companies(client, company.id, false, company.phones).await?;
+
+        Phone::update_companies(client, company.id, true, company.faxes).await?;
         Ok(result)
     }
 
@@ -218,10 +207,10 @@ impl CompanyList {
                         c.name,
                         c.address,
                         s.name AS scope_name,
-                        array_agg(DISTINCT e.email) AS emails,
-                        array_agg(DISTINCT p.phone) AS phones,
-                        array_agg(DISTINCT f.phone) AS faxes,
-                        array_agg(DISTINCT pr.date_of_practice) AS practices
+                        array_remove(array_agg(e.email), NULL) AS emails,
+                        array_remove(array_agg(p.phone), NULL) AS phones,
+                        array_remove(array_agg(f.phone), NULL) AS faxes,
+                        array_remove(array_agg(pr.date_of_practice), NULL) AS practices
                     FROM
                         companies AS c
                     LEFT JOIN

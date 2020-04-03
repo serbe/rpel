@@ -86,7 +86,7 @@
 // 	pub hideout_type_name: Option<String>,
 // 	pub address: Option<String>,
 // 	pub contact_name: Option<String>,
-// 	pub phones: Option<Vec<i64>>,
+// 	pub phones: Vec<i64>,
 // }
 
 // // GetHideout - get one hideout by id
@@ -114,7 +114,7 @@
 // 			s.address,
 // 			t.name AS hideout_type_name,
 // 			c.name AS contact_name,
-// 			array_agg(DISTINCT ph.phone) AS phones
+// 			array_remove(array_agg(ph.phone), NULL) AS phones
 //         FROM
 // 			hideouts AS s
 // 		LEFT JOIN

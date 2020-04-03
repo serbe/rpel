@@ -22,10 +22,10 @@ pub struct Contact {
     pub created_at: Option<NaiveDateTime>,
     #[serde(skip_serializing)]
     pub updated_at: Option<NaiveDateTime>,
-    pub emails: Option<Vec<String>>,
-    pub phones: Option<Vec<i64>>,
-    pub faxes: Option<Vec<i64>>,
-    pub educations: Option<Vec<String>>,
+    pub emails: Vec<String>,
+    pub phones: Vec<i64>,
+    pub faxes: Vec<i64>,
+    pub educations: Vec<String>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -35,8 +35,8 @@ pub struct ContactList {
     pub company_id: Option<i64>,
     pub company_name: Option<String>,
     pub post_name: Option<String>,
-    pub phones: Option<Vec<i64>>,
-    pub faxes: Option<Vec<i64>>,
+    pub phones: Vec<i64>,
+    pub faxes: Vec<i64>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -68,10 +68,10 @@ impl Contact {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_agg(DISTINCT e.email) AS emails,
-                        array_agg(DISTINCT ph.phone) AS phones,
-                        array_agg(DISTINCT f.phone) AS faxes,
-                        array_agg(DISTINCT ed.start_date) AS educations
+                        array_remove(array_agg(e.email), NULL) AS emails,
+                        array_remove(array_agg(ph.phone), NULL) AS phones,
+                        array_remove(array_agg(f.phone), NULL) AS faxes,
+                        array_remove(array_agg(ed.start_date), NULL) AS educations
                     FROM
                         contacts AS c
                     LEFT JOIN
@@ -88,8 +88,12 @@ impl Contact {
                         c.id
                 ",
             )
-            .await.with_context(|| format!("Failed prepare get contact {}", &id))?;
-        let row = client.query_one(&stmt, &[&id]).await.with_context(|| format!("Failed query one get contact {}", &id))?;
+            .await
+            .with_context(|| format!("Failed prepare get contact {}", &id))?;
+        let row = client
+            .query_one(&stmt, &[&id])
+            .await
+            .with_context(|| format!("Failed query one get contact {}", &id))?;
         println!("{} {:?}", row.len(), row.columns());
         let contact = Contact {
             id,
@@ -165,15 +169,9 @@ impl Contact {
             )
             .await?;
         contact.id = row.get(0);
-        if let Some(emails) = contact.emails.clone() {
-            Email::update_contacts(client, contact.id, emails).await?;
-        }
-        if let Some(phones) = contact.phones.clone() {
-            Phone::update_contacts(client, contact.id, false, phones).await?;
-        }
-        if let Some(faxes) = contact.faxes.clone() {
-            Phone::update_contacts(client, contact.id, true, faxes).await?;
-        }
+        Email::update_contacts(client, contact.id, contact.emails.clone()).await?;
+        Phone::update_contacts(client, contact.id, false, contact.phones.clone()).await?;
+        Phone::update_contacts(client, contact.id, true, contact.faxes.clone()).await?;
         Ok(contact)
     }
 
@@ -196,15 +194,9 @@ impl Contact {
                     ",
             )
             .await?;
-        if let Some(emails) = contact.emails.clone() {
-            Email::update_contacts(client, contact.id, emails).await?;
-        }
-        if let Some(phones) = contact.phones.clone() {
-            Phone::update_contacts(client, contact.id, false, phones).await?;
-        }
-        if let Some(faxes) = contact.faxes.clone() {
-            Phone::update_contacts(client, contact.id, true, faxes).await?;
-        }
+        Email::update_contacts(client, contact.id, contact.emails).await?;
+        Phone::update_contacts(client, contact.id, false, contact.phones).await?;
+        Phone::update_contacts(client, contact.id, true, contact.faxes).await?;
         Ok(client
             .execute(
                 &stmt,
@@ -254,8 +246,8 @@ impl ContactList {
                         co.id AS company_id,
                         co.name AS company_name,
                         po.name AS post_name,
-                        array_agg(DISTINCT ph.phone) AS phones,
-                        array_agg(DISTINCT f.phone) AS faxes
+                        array_remove(array_agg(ph.phone), NULL) AS phones,
+                        array_remove(array_agg(f.phone), NULL) AS faxes
                     FROM
                         contacts AS c
                     LEFT JOIN
@@ -314,7 +306,8 @@ impl ContactShort {
                         c.company_id = $1
                 ",
             )
-            .await.with_context(|| format!("Failed prepare get_by_company {}", &company_id))?;
+            .await
+            .with_context(|| format!("Failed prepare get_by_company {}", &company_id))?;
         for row in client.query(&stmt, &[&company_id]).await? {
             contacts.push(ContactShort {
                 id: row.try_get(0)?,

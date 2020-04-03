@@ -61,7 +61,12 @@ impl Phone {
             .await?)
     }
 
-    pub async fn update_contacts(client: &Client, id: i64, fax: bool, phones: Vec<i64>) -> Result<()> {
+    pub async fn update_contacts(
+        client: &Client,
+        id: i64,
+        fax: bool,
+        phones: Vec<i64>,
+    ) -> Result<()> {
         Phone::delete_contacts(client, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
@@ -73,7 +78,12 @@ impl Phone {
         Ok(())
     }
 
-    pub async fn update_companies(client: &Client, id: i64, fax: bool, phones: Vec<i64>) -> Result<()> {
+    pub async fn update_companies(
+        client: &Client,
+        id: i64,
+        fax: bool,
+        phones: Vec<i64>,
+    ) -> Result<()> {
         Phone::delete_companies(client, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
