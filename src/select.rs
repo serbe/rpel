@@ -26,8 +26,8 @@ async fn select_name(client: &Client, name: &str) -> Result<Vec<SelectItem>> {
     let mut select_list = Vec::new();
     for row in client.query(&stmt, &[&(name.to_string())]).await? {
         select_list.push(SelectItem {
-            id: row.get(0),
-            name: row.get(1),
+            id: row.try_get(0)?,
+            name: row.try_get(1)?,
         })
     }
     Ok(select_list)
@@ -69,8 +69,8 @@ impl SelectItem {
         let mut posts = Vec::new();
         for row in client.query(&stmt, &[&go]).await? {
             posts.push(SelectItem {
-                id: row.get(0),
-                name: row.get(1),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
             });
         }
         Ok(posts)

@@ -93,20 +93,20 @@ impl Contact {
         println!("{} {:?}", row.len(), row.columns());
         let contact = Contact {
             id,
-            name: row.get(0),
-            company_id: row.get(1),
-            department_id: row.get(2),
-            post_id: row.get(3),
-            post_go_id: row.get(4),
-            rank_id: row.get(5),
-            birthday: row.get(6),
-            note: row.get(7),
-            created_at: row.get(8),
-            updated_at: row.get(9),
-            emails: row.get(10),
-            phones: row.get(11),
-            faxes: row.get(12),
-            educations: row.get(13),
+            name: row.try_get(0)?,
+            company_id: row.try_get(1)?,
+            department_id: row.try_get(2)?,
+            post_id: row.try_get(3)?,
+            post_go_id: row.try_get(4)?,
+            rank_id: row.try_get(5)?,
+            birthday: row.try_get(6)?,
+            note: row.try_get(7)?,
+            created_at: row.try_get(8)?,
+            updated_at: row.try_get(9)?,
+            emails: row.try_get(10)?,
+            phones: row.try_get(11)?,
+            faxes: row.try_get(12)?,
+            educations: row.try_get(13)?,
         };
         Ok(contact)
     }
@@ -277,13 +277,13 @@ impl ContactList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             contacts.push(ContactList {
-                id: row.get(0),
-                name: row.get(1),
-                company_id: row.get(2),
-                company_name: row.get(3),
-                post_name: row.get(4),
-                phones: row.get(5),
-                faxes: row.get(6),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                company_id: row.try_get(2)?,
+                company_name: row.try_get(3)?,
+                post_name: row.try_get(4)?,
+                phones: row.try_get(5)?,
+                faxes: row.try_get(6)?,
             });
         }
         Ok(contacts)
@@ -317,11 +317,11 @@ impl ContactShort {
             .await.with_context(|| format!("Failed prepare get_by_company {}", &company_id))?;
         for row in client.query(&stmt, &[&company_id]).await? {
             contacts.push(ContactShort {
-                id: row.get(0),
-                name: row.get(1),
-                department_name: row.get(2),
-                post_name: row.get(3),
-                post_go_name: row.get(4),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                department_name: row.try_get(2)?,
+                post_name: row.try_get(3)?,
+                post_go_name: row.try_get(4)?,
             });
         }
         Ok(contacts)

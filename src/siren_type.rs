@@ -49,11 +49,11 @@ impl SirenType {
         let row = client.query_one(&stmt, &[&id]).await?;
         let siren_type = SirenType {
             id,
-            name: row.get(0),
-            radius: row.get(1),
-            note: row.get(2),
-            created_at: row.get(3),
-            updated_at: row.get(4),
+            name: row.try_get(0)?,
+            radius: row.try_get(1)?,
+            note: row.try_get(2)?,
+            created_at: row.try_get(3)?,
+            updated_at: row.try_get(4)?,
         };
         Ok(siren_type)
     }
@@ -163,10 +163,10 @@ impl SirenTypeList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             siren_types.push(SirenTypeList {
-                id: row.get(0),
-                name: row.get(1),
-                radius: row.get(2),
-                note: row.get(3),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                radius: row.try_get(2)?,
+                note: row.try_get(3)?,
             });
         }
         Ok(siren_types)

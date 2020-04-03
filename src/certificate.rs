@@ -197,16 +197,16 @@ impl CertificateList {
             certificates.push(CertificateList {
                 id: row.get("id"),
                 num: row.get("num"),
-                contact_id: row.get(2),
-                contact_name: row.get(3),
-                company_id: row.get(4),
-                company_name: row.get(5),
+                contact_id: row.try_get(2)?,
+                contact_name: row.try_get(3)?,
+                company_id: row.try_get(4)?,
+                company_name: row.try_get(5)?,
                 cert_date: if let Some(d) = date {
                     Some(d.format("%Y-%m-%d").to_string())
                 } else {
                     None
                 },
-                note: row.get(7),
+                note: row.try_get(7)?,
             });
         }
         Ok(certificates)

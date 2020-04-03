@@ -70,21 +70,21 @@ impl Siren {
         let row = client.query_one(&stmt, &[&id]).await?;
         let siren = Siren {
             id,
-            num_id: row.get(0),
-            num_pass: row.get(1),
-            siren_type_id: row.get(2),
-            address: row.get(3),
-            radio: row.get(4),
-            desk: row.get(5),
-            contact_id: row.get(6),
-            company_id: row.get(7),
-            latitude: row.get(8),
-            longitude: row.get(9),
-            stage: row.get(10),
-            own: row.get(11),
-            note: row.get(12),
-            created_at: row.get(13),
-            updated_at: row.get(14),
+            num_id: row.try_get(0)?,
+            num_pass: row.try_get(1)?,
+            siren_type_id: row.try_get(2)?,
+            address: row.try_get(3)?,
+            radio: row.try_get(4)?,
+            desk: row.try_get(5)?,
+            contact_id: row.try_get(6)?,
+            company_id: row.try_get(7)?,
+            latitude: row.try_get(8)?,
+            longitude: row.try_get(9)?,
+            stage: row.try_get(10)?,
+            own: row.try_get(11)?,
+            note: row.try_get(12)?,
+            created_at: row.try_get(13)?,
+            updated_at: row.try_get(14)?,
         };
         Ok(siren)
     }
@@ -255,11 +255,11 @@ impl SirenList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             sirens.push(SirenList {
-                id: row.get(0),
-                siren_type_name: row.get(1),
-                address: row.get(2),
-                contact_name: row.get(3),
-                phones: row.get(4),
+                id: row.try_get(0)?,
+                siren_type_name: row.try_get(1)?,
+                address: row.try_get(2)?,
+                contact_name: row.try_get(3)?,
+                phones: row.try_get(4)?,
             });
         }
         Ok(sirens)

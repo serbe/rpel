@@ -49,11 +49,11 @@ impl Post {
         let row = client.query_one(&stmt, &[&id]).await?;
         let post = Post {
             id,
-            name: row.get(0),
-            go: row.get(1),
-            note: row.get(2),
-            created_at: row.get(3),
-            updated_at: row.get(4),
+            name: row.try_get(0)?,
+            go: row.try_get(1)?,
+            note: row.try_get(2)?,
+            created_at: row.try_get(3)?,
+            updated_at: row.try_get(4)?,
         };
         Ok(post)
     }
@@ -163,10 +163,10 @@ impl PostList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             posts.push(PostList {
-                id: row.get(0),
-                name: row.get(1),
-                go: row.get(2),
-                note: row.get(3),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                go: row.try_get(2)?,
+                note: row.try_get(3)?,
             });
         }
         Ok(posts)

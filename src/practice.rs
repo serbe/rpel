@@ -68,13 +68,13 @@ impl Practice {
         let row = client.query_one(&stmt, &[&id]).await?;
         let practice = Practice {
             id,
-            company_id: row.get(0),
-            kind_id: row.get(1),
-            topic: row.get(2),
-            date_of_practice: row.get(3),
-            note: row.get(4),
-            created_at: row.get(5),
-            updated_at: row.get(6),
+            company_id: row.try_get(0)?,
+            kind_id: row.try_get(1)?,
+            topic: row.try_get(2)?,
+            date_of_practice: row.try_get(3)?,
+            note: row.try_get(4)?,
+            created_at: row.try_get(5)?,
+            updated_at: row.try_get(6)?,
         };
         Ok(practice)
     }
@@ -203,14 +203,14 @@ impl PracticeList {
         for row in client.query(&stmt, &[]).await? {
             let date: Option<NaiveDate> = row.get(6);
             practices.push(PracticeList {
-                id: row.get(0),
-                company_id: row.get(1),
-                company_name: row.get(2),
-                kind_id: row.get(3),
-                kind_name: row.get(4),
-                kind_short_name: row.get(5),
-                date_of_practice: row.get(6),
-                topic: row.get(7),
+                id: row.try_get(0)?,
+                company_id: row.try_get(1)?,
+                company_name: row.try_get(2)?,
+                kind_id: row.try_get(3)?,
+                kind_name: row.try_get(4)?,
+                kind_short_name: row.try_get(5)?,
+                date_of_practice: row.try_get(6)?,
+                topic: row.try_get(7)?,
                 date_str: if let Some(d) = date {
                     Some(d.format("%d.%m.%y").to_string())
                 } else {
@@ -251,14 +251,14 @@ impl PracticeList {
         for row in client.query(&stmt, &[&company_id]).await? {
             let date: Option<NaiveDate> = row.get(6);
             practices.push(PracticeList {
-                id: row.get(0),
-                company_id: row.get(1),
-                company_name: row.get(2),
-                kind_id: row.get(3),
-                kind_name: row.get(4),
-                kind_short_name: row.get(5),
-                date_of_practice: row.get(6),
-                topic: row.get(7),
+                id: row.try_get(0)?,
+                company_id: row.try_get(1)?,
+                company_name: row.try_get(2)?,
+                kind_id: row.try_get(3)?,
+                kind_name: row.try_get(4)?,
+                kind_short_name: row.try_get(5)?,
+                date_of_practice: row.try_get(6)?,
+                topic: row.try_get(7)?,
                 date_str: if let Some(d) = date {
                     Some(d.format("%d.%m.%y").to_string())
                 } else {
@@ -299,12 +299,12 @@ impl PracticeShort {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             practices.push(PracticeShort {
-                id: row.get(0),
-                company_id: row.get(1),
-                company_name: row.get(2),
-                kind_id: row.get(3),
-                kind_short_name: row.get(4),
-                date_of_practice: row.get(5),
+                id: row.try_get(0)?,
+                company_id: row.try_get(1)?,
+                company_name: row.try_get(2)?,
+                kind_id: row.try_get(3)?,
+                kind_short_name: row.try_get(4)?,
+                date_of_practice: row.try_get(5)?,
             });
         }
         Ok(practices)

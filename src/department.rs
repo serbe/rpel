@@ -46,10 +46,10 @@ impl Department {
         let row = client.query_one(&stmt, &[&id]).await?;
         let department = Department {
             id,
-            name: row.get(0),
-            note: row.get(1),
-            created_at: row.get(2),
-            updated_at: row.get(3),
+            name: row.try_get(0)?,
+            note: row.try_get(1)?,
+            created_at: row.try_get(2)?,
+            updated_at: row.try_get(3)?,
         };
         Ok(department)
     }
@@ -153,9 +153,9 @@ impl DepartmentList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             departments.push(DepartmentList {
-                id: row.get(0),
-                name: row.get(1),
-                note: row.get(2),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                note: row.try_get(2)?,
             });
         }
         Ok(departments)

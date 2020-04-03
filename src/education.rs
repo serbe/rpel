@@ -67,13 +67,13 @@ impl Education {
         let row = client.query_one(&stmt, &[&id]).await?;
         let education = Education {
             id,
-            contact_id: row.get(0),
-            start_date: row.get(1),
-            end_date: row.get(2),
-            post_id: row.get(3),
-            note: row.get(4),
-            created_at: row.get(5),
-            updated_at: row.get(6),
+            contact_id: row.try_get(0)?,
+            start_date: row.try_get(1)?,
+            end_date: row.try_get(2)?,
+            post_id: row.try_get(3)?,
+            note: row.try_get(4)?,
+            created_at: row.try_get(5)?,
+            updated_at: row.try_get(6)?,
         };
         Ok(education)
     }
@@ -200,11 +200,11 @@ impl EducationList {
             let start_str: Option<NaiveDate> = row.get(3);
             let end_str: Option<NaiveDate> = row.get(4);
             educations.push(EducationList {
-                id: row.get(0),
-                contact_id: row.get(1),
-                contact_name: row.get(2),
-                start_date: row.get(3),
-                end_date: row.get(4),
+                id: row.try_get(0)?,
+                contact_id: row.try_get(1)?,
+                contact_name: row.try_get(2)?,
+                start_date: row.try_get(3)?,
+                end_date: row.try_get(4)?,
                 start_str: if let Some(d) = start_str {
                     Some(d.format("%Y-%m-%d").to_string())
                 } else {
@@ -215,9 +215,9 @@ impl EducationList {
                 } else {
                     None
                 },
-                post_id: row.get(5),
-                post_name: row.get(6),
-                note: row.get(7),
+                post_id: row.try_get(5)?,
+                post_name: row.try_get(6)?,
+                note: row.try_get(7)?,
             });
         }
         Ok(educations)
@@ -249,10 +249,10 @@ impl EducationShort {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             educations.push(EducationShort {
-                id: row.get(0),
-                contact_id: row.get(1),
-                contact_name: row.get(2),
-                start_date: row.get(3),
+                id: row.try_get(0)?,
+                contact_id: row.try_get(1)?,
+                contact_name: row.try_get(2)?,
+                start_date: row.try_get(3)?,
             });
         }
         Ok(educations)

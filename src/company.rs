@@ -80,15 +80,15 @@ impl Company {
         let contacts = ContactShort::get_by_company(client, id).await.ok();
         let company = Company {
             id,
-            name: row.get(0),
-            address: row.get(1),
-            scope_id: row.get(2),
-            note: row.get(3),
-            created_at: row.get(4),
-            updated_at: row.get(5),
-            emails: row.get(6),
-            phones: row.get(7),
-            faxes: row.get(8),
+            name: row.try_get(0)?,
+            address: row.try_get(1)?,
+            scope_id: row.try_get(2)?,
+            note: row.try_get(3)?,
+            created_at: row.try_get(4)?,
+            updated_at: row.try_get(5)?,
+            emails: row.try_get(6)?,
+            phones: row.try_get(7)?,
+            faxes: row.try_get(8)?,
             practices,
             contacts,
         };
@@ -244,14 +244,14 @@ impl CompanyList {
             .await?;
         for row in client.query(&stmt, &[]).await? {
             companies.push(CompanyList {
-                id: row.get(0),
-                name: row.get(1),
-                address: row.get(2),
-                scope_name: row.get(3),
-                emails: row.get(4),
-                phones: row.get(5),
-                faxes: row.get(6),
-                practices: row.get(7),
+                id: row.try_get(0)?,
+                name: row.try_get(1)?,
+                address: row.try_get(2)?,
+                scope_name: row.try_get(3)?,
+                emails: row.try_get(4)?,
+                phones: row.try_get(5)?,
+                faxes: row.try_get(6)?,
+                practices: row.try_get(7)?,
             });
         }
         Ok(companies)
