@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
@@ -89,13 +89,8 @@ impl Contact {
                         c.id
                 ",
             )
-            .await
-            .with_context(|| format!("Failed prepare get contact {}", &id))?;
-        let row = client
-            .query_one(&stmt, &[&id])
-            .await
-            .with_context(|| format!("Failed query one get contact {}", &id))?;
-        println!("{} {:?}", row.len(), row.columns());
+            .await?;
+        let row = client.query_one(&stmt, &[&id]).await?;
         let contact = Contact {
             id,
             name: row.try_get("name")?,
@@ -307,8 +302,7 @@ impl ContactShort {
                         c.company_id = $1
                 ",
             )
-            .await
-            .with_context(|| format!("Failed prepare get_by_company {}", &company_id))?;
+            .await?;
         for row in client.query(&stmt, &[&company_id]).await? {
             contacts.push(ContactShort {
                 id: row.try_get(0)?,
