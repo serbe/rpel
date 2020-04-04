@@ -25,7 +25,8 @@ pub struct Contact {
     pub emails: Vec<String>,
     pub phones: Vec<i64>,
     pub faxes: Vec<i64>,
-    pub educations: Vec<String>,
+    #[serde(skip_deserializing)]
+    pub educations: Vec<NaiveDate>,
 }
 
 #[derive(Deserialize, Serialize)]
