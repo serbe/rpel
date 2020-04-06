@@ -9,22 +9,22 @@ pub struct SelectItem {
 }
 
 async fn select_name(client: &Client, name: &str) -> Result<Vec<SelectItem>> {
-    // let client = client.get().await?;
+    let name = name.to_string();
     let stmt = client
         .prepare(
             "
-    SELECT
-        id,
-        name
-    FROM
-        $1
-    ORDER BY
-        name ASC
-",
+                SELECT
+                    id,
+                    name
+                FROM
+                    $1
+                ORDER BY
+                    name ASC
+            ",
         )
         .await?;
     let mut select_list = Vec::new();
-    for row in client.query(&stmt, &[&(name.to_string())]).await? {
+    for row in client.query(&stmt, &[&name]).await? {
         select_list.push(SelectItem {
             id: row.try_get(0)?,
             name: row.try_get(1)?,
