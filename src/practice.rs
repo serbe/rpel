@@ -292,7 +292,7 @@ impl PracticeShort {
                     WHERE
                         p.date_of_practice > TIMESTAMP 'now'::timestamp - '1 month'::interval
                     ORDER BY
-                        date_of_practice DESC
+                        date_of_practice ASC
                     LIMIT 10
                 ",
             )
