@@ -232,8 +232,8 @@ impl SirenList {
                 "
                     SELECT
                         s.id,
-                        s.address,
                         t.name AS siren_type_name,
+                        s.address,
                         c.name AS contact_name,
                         array_remove(array_agg(ph.phone), NULL) AS phones
                     FROM
