@@ -20,7 +20,7 @@
 // }
 
 // // GetHideoutType - get one hideoutType by id
-// pub async fn GetHideoutType(client: &Client, id: i64) -> Result<HideoutType> {
+// pub async fn GetHideoutType(client: &Client, id: i64) -> Result<HideoutType, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideoutType = HideoutType::new();
 // 	if id == 0 {
@@ -36,7 +36,7 @@
 // }
 
 // // GetHideoutTypeList - get hideoutType for list by id
-// pub async fn GetHideoutTypeList(client: &Client, id: i64) -> Result<HideoutTypeList> {
+// pub async fn GetHideoutTypeList(client: &Client, id: i64) -> Result<HideoutTypeList, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideoutType = HideoutTypeList::new();
 // 	else { for row in &conn.query("

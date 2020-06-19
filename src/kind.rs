@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Kind {
@@ -29,7 +30,7 @@ impl Kind {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Kind> {
+    pub async fn get(client: &Client, id: i64) -> Result<Kind, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -58,7 +59,7 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn insert(client: &Client, kind: Kind) -> Result<Kind> {
+    pub async fn insert(client: &Client, kind: Kind) -> Result<Kind, RpelError> {
         let mut kind = kind;
         let stmt = client
             .prepare(
@@ -100,7 +101,7 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn update(client: &Client, kind: Kind) -> Result<u64> {
+    pub async fn update(client: &Client, kind: Kind) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -128,7 +129,7 @@ impl Kind {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -144,7 +145,7 @@ impl Kind {
 }
 
 impl KindList {
-    pub async fn get_all(client: &Client) -> Result<Vec<KindList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<KindList>, RpelError> {
         let mut kinds = Vec::new();
         let stmt = client
             .prepare(

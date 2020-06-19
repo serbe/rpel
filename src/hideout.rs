@@ -90,7 +90,7 @@
 // }
 
 // // GetHideout - get one hideout by id
-// pub async fn GetHideout(client: &Client, id: i64) -> Result<Hideout> {
+// pub async fn GetHideout(client: &Client, id: i64) -> Result<Hideout, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideout = Hideout::new();
 // 	if id == 0 {
@@ -173,35 +173,35 @@
 // 		CREATE TABLE IF NOT EXISTS
 // 			hideouts (
 // 				id              bigserial PRIMARY KEY,
-// 				num             bigint,        
-// 				inv_num         bigint,        
-// 				inv_add         bigint,        
-// 				hideout_type_id bigint,        
-// 				address         text,       
-// 				owner_id        bigint,        
-// 				designer_id     bigint,        
-// 				builder_id      bigint,        
-// 				purpose         text,       
-// 				commissioning   text,       
-// 				readiness       bigint,        
-// 				capacity        bigint,        
-// 				area            bigint,        
-// 				size            bigint,        
-// 				floors          bigint,        
-// 				separate        bool         
-// 				excavation      bool         
-// 				inputs          bigint,        
-// 				coefficient     bigint,        
-// 				stress          bigint,        
-// 				ventilation     text,       
-// 				heating         text,       
-// 				power           text,       
-// 				water           text,       
-// 				sewerage        text,       
-// 				implements      text,       
+// 				num             bigint,
+// 				inv_num         bigint,
+// 				inv_add         bigint,
+// 				hideout_type_id bigint,
+// 				address         text,
+// 				owner_id        bigint,
+// 				designer_id     bigint,
+// 				builder_id      bigint,
+// 				purpose         text,
+// 				commissioning   text,
+// 				readiness       bigint,
+// 				capacity        bigint,
+// 				area            bigint,
+// 				size            bigint,
+// 				floors          bigint,
+// 				separate        bool
+// 				excavation      bool
+// 				inputs          bigint,
+// 				coefficient     bigint,
+// 				stress          bigint,
+// 				ventilation     text,
+// 				heating         text,
+// 				power           text,
+// 				water           text,
+// 				sewerage        text,
+// 				implements      text,
 // 				contact_id      bigint,
-// 				condition       text,        
-// 				note            text,       
+// 				condition       text,
+// 				note            text,
 // 				created_at      TIMESTAMP without time zone,
 // 				updated_at      TIMESTAMP without time zone default now(),
 // 				UNIQUE(num, inv_num, inv_add)

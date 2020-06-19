@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Post {
@@ -29,7 +30,7 @@ impl Post {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Post> {
+    pub async fn get(client: &Client, id: i64) -> Result<Post, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -58,7 +59,7 @@ impl Post {
         Ok(post)
     }
 
-    pub async fn insert(client: &Client, post: Post) -> Result<Post> {
+    pub async fn insert(client: &Client, post: Post) -> Result<Post, RpelError> {
         let mut post = post;
         let stmt = client
             .prepare(
@@ -100,7 +101,7 @@ impl Post {
         Ok(post)
     }
 
-    pub async fn update(client: &Client, post: Post) -> Result<u64> {
+    pub async fn update(client: &Client, post: Post) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -128,7 +129,7 @@ impl Post {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -144,7 +145,7 @@ impl Post {
 }
 
 impl PostList {
-    pub async fn get_all(client: &Client) -> Result<Vec<PostList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<PostList>, RpelError> {
         let mut posts = Vec::new();
         let stmt = client
             .prepare(

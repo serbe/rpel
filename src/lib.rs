@@ -2,6 +2,8 @@
 use deadpool_postgres::{Manager, Pool};
 use tokio_postgres::{Config, NoTls};
 
+pub mod error;
+
 pub mod certificate;
 pub mod company;
 pub mod contact;

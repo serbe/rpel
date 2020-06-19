@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct Phone {
@@ -21,7 +22,7 @@ impl Phone {
         Default::default()
     }
 
-    async fn insert(client: &Client, phone: Phone) -> Result<u64> {
+    async fn insert(client: &Client, phone: Phone) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -66,7 +67,7 @@ impl Phone {
         id: i64,
         fax: bool,
         phones: Vec<i64>,
-    ) -> Result<()> {
+    ) -> Result<(), RpelError> {
         Phone::delete_contacts(client, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
@@ -83,7 +84,7 @@ impl Phone {
         id: i64,
         fax: bool,
         phones: Vec<i64>,
-    ) -> Result<()> {
+    ) -> Result<(), RpelError> {
         Phone::delete_companies(client, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
@@ -95,7 +96,7 @@ impl Phone {
         Ok(())
     }
 
-    pub async fn delete_contacts(client: &Client, id: i64, fax: bool) -> Result<u64> {
+    pub async fn delete_contacts(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -111,7 +112,7 @@ impl Phone {
         Ok(client.execute(&stmt, &[&id, &fax]).await?)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<u64> {
+    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "

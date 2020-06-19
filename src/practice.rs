@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Practice {
@@ -46,7 +47,7 @@ impl Practice {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Practice> {
+    pub async fn get(client: &Client, id: i64) -> Result<Practice, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -79,7 +80,7 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn insert(client: &Client, practice: Practice) -> Result<Practice> {
+    pub async fn insert(client: &Client, practice: Practice) -> Result<Practice, RpelError> {
         let mut practice = practice;
         let stmt = client
             .prepare(
@@ -127,7 +128,7 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn update(client: &Client, practice: Practice) -> Result<u64> {
+    pub async fn update(client: &Client, practice: Practice) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -159,7 +160,7 @@ impl Practice {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -175,7 +176,7 @@ impl Practice {
 }
 
 impl PracticeList {
-    pub async fn get_all(client: &Client) -> Result<Vec<PracticeList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
         let stmt = client
             .prepare(
@@ -221,7 +222,10 @@ impl PracticeList {
         Ok(practices)
     }
 
-    pub async fn get_by_company(client: &Client, company_id: i64) -> Result<Vec<PracticeList>> {
+    pub async fn get_by_company(
+        client: &Client,
+        company_id: i64,
+    ) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
         let stmt = client
             .prepare(
@@ -271,7 +275,7 @@ impl PracticeList {
 }
 
 impl PracticeShort {
-    pub async fn get_near(client: &Client) -> Result<Vec<PracticeShort>> {
+    pub async fn get_near(client: &Client) -> Result<Vec<PracticeShort>, RpelError> {
         let mut practices = Vec::new();
         let stmt = client
             .prepare(

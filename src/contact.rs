@@ -1,9 +1,9 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::email::Email;
+use crate::error::RpelError;
 use crate::phone::Phone;
 
 #[derive(Default, Deserialize, Serialize)]
@@ -54,7 +54,7 @@ impl Contact {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Contact> {
+    pub async fn get(client: &Client, id: i64) -> Result<Contact, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -111,7 +111,7 @@ impl Contact {
         Ok(contact)
     }
 
-    pub async fn insert(client: &Client, contact: Contact) -> Result<Contact> {
+    pub async fn insert(client: &Client, contact: Contact) -> Result<Contact, RpelError> {
         let mut contact = contact;
         let stmt = client
             .prepare(
@@ -171,7 +171,7 @@ impl Contact {
         Ok(contact)
     }
 
-    pub async fn update(client: &Client, contact: Contact) -> Result<u64> {
+    pub async fn update(client: &Client, contact: Contact) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -212,7 +212,7 @@ impl Contact {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         Phone::delete_contacts(client, id, true).await?;
         Phone::delete_contacts(client, id, false).await?;
         Email::delete_contacts(client, id).await?;
@@ -231,7 +231,7 @@ impl Contact {
 }
 
 impl ContactList {
-    pub async fn get_all(client: &Client) -> Result<Vec<ContactList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<ContactList>, RpelError> {
         let mut contacts = Vec::new();
         let stmt = client
             .prepare(
@@ -279,7 +279,10 @@ impl ContactList {
 }
 
 impl ContactShort {
-    pub async fn get_by_company(client: &Client, company_id: i64) -> Result<Vec<ContactShort>> {
+    pub async fn get_by_company(
+        client: &Client,
+        company_id: i64,
+    ) -> Result<Vec<ContactShort>, RpelError> {
         let mut contacts = Vec::new();
         let stmt = client
             .prepare(

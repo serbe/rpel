@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Certificate {
@@ -35,7 +36,7 @@ impl Certificate {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Certificate> {
+    pub async fn get(client: &Client, id: i64) -> Result<Certificate, RpelError> {
         let mut certificate = Certificate::new();
         let stmt = client
             .prepare(
@@ -67,7 +68,10 @@ impl Certificate {
         Ok(certificate)
     }
 
-    pub async fn insert(client: &Client, certificate: Certificate) -> Result<Certificate> {
+    pub async fn insert(
+        client: &Client,
+        certificate: Certificate,
+    ) -> Result<Certificate, RpelError> {
         let mut certificate = certificate;
         let stmt = client
             .prepare(
@@ -115,7 +119,7 @@ impl Certificate {
         Ok(certificate)
     }
 
-    pub async fn update(client: &Client, certificate: Certificate) -> Result<u64> {
+    pub async fn update(client: &Client, certificate: Certificate) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -147,7 +151,7 @@ impl Certificate {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -163,7 +167,7 @@ impl Certificate {
 }
 
 impl CertificateList {
-    pub async fn get_all(client: &Client) -> Result<Vec<CertificateList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<CertificateList>, RpelError> {
         let mut certificates = Vec::new();
         let stmt = client
             .prepare(

@@ -1,7 +1,8 @@
-use anyhow::Result;
 use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
+
+use crate::error::RpelError;
 
 #[derive(Default, Deserialize, Serialize)]
 pub struct Education {
@@ -45,7 +46,7 @@ impl Education {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Education> {
+    pub async fn get(client: &Client, id: i64) -> Result<Education, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -78,7 +79,7 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn insert(client: &Client, education: Education) -> Result<Education> {
+    pub async fn insert(client: &Client, education: Education) -> Result<Education, RpelError> {
         let mut education = education;
         let stmt = client
             .prepare(
@@ -123,7 +124,7 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn update(client: &Client, education: Education) -> Result<u64> {
+    pub async fn update(client: &Client, education: Education) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -155,7 +156,7 @@ impl Education {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64> {
+    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -171,7 +172,7 @@ impl Education {
 }
 
 impl EducationList {
-    pub async fn get_all(client: &Client) -> Result<Vec<EducationList>> {
+    pub async fn get_all(client: &Client) -> Result<Vec<EducationList>, RpelError> {
         let mut educations = Vec::new();
         let stmt = client
             .prepare(
@@ -225,7 +226,7 @@ impl EducationList {
 }
 
 impl EducationShort {
-    pub async fn get_near(client: &Client) -> Result<Vec<EducationShort>> {
+    pub async fn get_near(client: &Client) -> Result<Vec<EducationShort>, RpelError> {
         let mut educations = Vec::new();
         let stmt = client
             .prepare(
