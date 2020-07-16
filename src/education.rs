@@ -79,7 +79,7 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn insert(client: &Client, education: Education) -> Result<Education, RpelError> {
+    pub async fn insert(client: &Client, education: Education) -> Result<bool, RpelError> {
         let mut education = education;
         let stmt = client
             .prepare(
@@ -124,10 +124,10 @@ impl Education {
             )
             .await?;
         education.id = row.get(0);
-        Ok(education)
+        Ok(education.id > 0)
     }
 
-    pub async fn update(client: &Client, education: Education) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, education: Education) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -156,10 +156,11 @@ impl Education {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -170,7 +171,7 @@ impl Education {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

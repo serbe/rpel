@@ -21,7 +21,7 @@ impl Email {
         Default::default()
     }
 
-    async fn insert(client: &Client, email: Email) -> Result<u64, RpelError> {
+    async fn insert(client: &Client, email: Email) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -55,7 +55,8 @@ impl Email {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
     pub async fn update_contacts(
@@ -88,7 +89,7 @@ impl Email {
         Ok(())
     }
 
-    pub async fn delete_contacts(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete_contacts(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -99,10 +100,10 @@ impl Email {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete_companies(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -113,6 +114,6 @@ impl Email {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }

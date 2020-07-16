@@ -68,10 +68,7 @@ impl Certificate {
         Ok(certificate)
     }
 
-    pub async fn insert(
-        client: &Client,
-        certificate: Certificate,
-    ) -> Result<Certificate, RpelError> {
+    pub async fn insert(client: &Client, certificate: Certificate) -> Result<bool, RpelError> {
         let mut certificate = certificate;
         let stmt = client
             .prepare(
@@ -116,10 +113,10 @@ impl Certificate {
             )
             .await?;
         certificate.id = row.get(0);
-        Ok(certificate)
+        Ok(certificate.id > 0)
     }
 
-    pub async fn update(client: &Client, certificate: Certificate) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, certificate: Certificate) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -148,10 +145,11 @@ impl Certificate {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -162,7 +160,7 @@ impl Certificate {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

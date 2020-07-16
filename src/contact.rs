@@ -111,7 +111,7 @@ impl Contact {
         Ok(contact)
     }
 
-    pub async fn insert(client: &Client, contact: Contact) -> Result<Contact, RpelError> {
+    pub async fn insert(client: &Client, contact: Contact) -> Result<bool, RpelError> {
         let mut contact = contact;
         let stmt = client
             .prepare(
@@ -168,10 +168,10 @@ impl Contact {
         Email::update_contacts(client, contact.id, contact.emails.clone()).await?;
         Phone::update_contacts(client, contact.id, false, contact.phones.clone()).await?;
         Phone::update_contacts(client, contact.id, true, contact.faxes.clone()).await?;
-        Ok(contact)
+        Ok(contact.id > 0)
     }
 
-    pub async fn update(client: &Client, contact: Contact) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, contact: Contact) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -209,10 +209,11 @@ impl Contact {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         Phone::delete_contacts(client, id, true).await?;
         Phone::delete_contacts(client, id, false).await?;
         Email::delete_contacts(client, id).await?;
@@ -226,7 +227,7 @@ impl Contact {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

@@ -95,7 +95,7 @@ impl Company {
         Ok(company)
     }
 
-    pub async fn insert(client: &Client, company: Company) -> Result<Company, RpelError> {
+    pub async fn insert(client: &Client, company: Company) -> Result<bool, RpelError> {
         let mut company = company;
         let stmt = client
             .prepare(
@@ -140,10 +140,10 @@ impl Company {
         Email::update_companies(client, company.id, company.emails.clone()).await?;
         Phone::update_companies(client, company.id, false, company.phones.clone()).await?;
         Phone::update_companies(client, company.id, true, company.faxes.clone()).await?;
-        Ok(company)
+        Ok(company.id > 0)
     }
 
-    pub async fn update(client: &Client, company: Company) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, company: Company) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -175,10 +175,10 @@ impl Company {
         Phone::update_companies(client, company.id, false, company.phones).await?;
 
         Phone::update_companies(client, company.id, true, company.faxes).await?;
-        Ok(result)
+        Ok(result > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         Phone::delete_companies(&client, id, true).await?;
         Phone::delete_companies(&client, id, false).await?;
         Email::delete_companies(&client, id).await?;
@@ -192,7 +192,7 @@ impl Company {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

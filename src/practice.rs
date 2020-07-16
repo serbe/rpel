@@ -80,7 +80,7 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn insert(client: &Client, practice: Practice) -> Result<Practice, RpelError> {
+    pub async fn insert(client: &Client, practice: Practice) -> Result<bool, RpelError> {
         let mut practice = practice;
         let stmt = client
             .prepare(
@@ -125,10 +125,10 @@ impl Practice {
             )
             .await?;
         practice.id = row.get(0);
-        Ok(practice)
+        Ok(practice.id > 0)
     }
 
-    pub async fn update(client: &Client, practice: Practice) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, practice: Practice) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -157,10 +157,11 @@ impl Practice {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -171,7 +172,7 @@ impl Practice {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

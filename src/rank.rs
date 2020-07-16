@@ -55,7 +55,7 @@ impl Rank {
         Ok(rank)
     }
 
-    pub async fn insert(client: &Client, rank: Rank) -> Result<Rank, RpelError> {
+    pub async fn insert(client: &Client, rank: Rank) -> Result<bool, RpelError> {
         let mut rank = rank;
         let stmt = client
             .prepare(
@@ -91,10 +91,10 @@ impl Rank {
             )
             .await?;
         rank.id = row.get(0);
-        Ok(rank)
+        Ok(rank.id > 0)
     }
 
-    pub async fn update(client: &Client, rank: Rank) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, rank: Rank) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -117,10 +117,11 @@ impl Rank {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -131,7 +132,7 @@ impl Rank {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

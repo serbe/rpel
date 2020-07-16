@@ -55,7 +55,7 @@ impl Scope {
         Ok(scope)
     }
 
-    pub async fn insert(client: &Client, scope: Scope) -> Result<Scope, RpelError> {
+    pub async fn insert(client: &Client, scope: Scope) -> Result<bool, RpelError> {
         let mut scope = scope;
         let stmt = client
             .prepare(
@@ -91,10 +91,10 @@ impl Scope {
             )
             .await?;
         scope.id = row.get(0);
-        Ok(scope)
+        Ok(scope.id > 0)
     }
 
-    pub async fn update(client: &Client, scope: Scope) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, scope: Scope) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -117,10 +117,11 @@ impl Scope {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -131,7 +132,7 @@ impl Scope {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

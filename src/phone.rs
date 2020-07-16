@@ -22,7 +22,7 @@ impl Phone {
         Default::default()
     }
 
-    async fn insert(client: &Client, phone: Phone) -> Result<u64, RpelError> {
+    async fn insert(client: &Client, phone: Phone) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -59,7 +59,8 @@ impl Phone {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
     pub async fn update_contacts(
@@ -96,7 +97,7 @@ impl Phone {
         Ok(())
     }
 
-    pub async fn delete_contacts(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
+    pub async fn delete_contacts(client: &Client, id: i64, fax: bool) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -109,10 +110,10 @@ impl Phone {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id, &fax]).await?)
+        Ok(client.execute(&stmt, &[&id, &fax]).await? > 0)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
+    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -125,6 +126,6 @@ impl Phone {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id, &fax]).await?)
+        Ok(client.execute(&stmt, &[&id, &fax]).await? > 0)
     }
 }

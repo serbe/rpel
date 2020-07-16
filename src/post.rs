@@ -59,7 +59,7 @@ impl Post {
         Ok(post)
     }
 
-    pub async fn insert(client: &Client, post: Post) -> Result<Post, RpelError> {
+    pub async fn insert(client: &Client, post: Post) -> Result<bool, RpelError> {
         let mut post = post;
         let stmt = client
             .prepare(
@@ -98,10 +98,10 @@ impl Post {
             )
             .await?;
         post.id = row.get(0);
-        Ok(post)
+        Ok(post.id > 0)
     }
 
-    pub async fn update(client: &Client, post: Post) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, post: Post) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -126,10 +126,11 @@ impl Post {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -140,7 +141,7 @@ impl Post {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 

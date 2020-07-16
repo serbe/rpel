@@ -59,7 +59,7 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn insert(client: &Client, siren_type: SirenType) -> Result<SirenType, RpelError> {
+    pub async fn insert(client: &Client, siren_type: SirenType) -> Result<bool, RpelError> {
         let mut siren_type = siren_type;
         let stmt = client
             .prepare(
@@ -98,10 +98,10 @@ impl SirenType {
             )
             .await?;
         siren_type.id = row.get(0);
-        Ok(siren_type)
+        Ok(siren_type.id > 0)
     }
 
-    pub async fn update(client: &Client, siren_type: SirenType) -> Result<u64, RpelError> {
+    pub async fn update(client: &Client, siren_type: SirenType) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -126,10 +126,11 @@ impl SirenType {
                     &Local::now().naive_local(),
                 ],
             )
-            .await?)
+            .await?
+            > 0)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(client: &Client, id: i64) -> Result<bool, RpelError> {
         let stmt = client
             .prepare(
                 "
@@ -140,7 +141,7 @@ impl SirenType {
                 ",
             )
             .await?;
-        Ok(client.execute(&stmt, &[&id]).await?)
+        Ok(client.execute(&stmt, &[&id]).await? > 0)
     }
 }
 
