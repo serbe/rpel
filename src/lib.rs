@@ -1,4 +1,3 @@
-// #![allow(dead_code)]
 use deadpool_postgres::{Manager, Pool};
 use tokio_postgres::{Config, NoTls};
 
@@ -20,6 +19,7 @@ pub mod select;
 pub mod siren;
 pub mod siren_type;
 pub mod tcc;
+pub mod user;
 
 fn get_config() -> Config {
     let mut config = Config::new();
