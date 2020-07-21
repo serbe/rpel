@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct User {
     #[serde(default)]
     pub id: i64,
-    pub name: Option<String>,
-    pub key: Option<String>,
-    pub role: Option<i64>,
+    pub name: String,
+    pub key: String,
+    pub role: i64,
     #[serde(skip_serializing)]
     pub created_at: Option<NaiveDateTime>,
     #[serde(skip_serializing)]
@@ -20,16 +20,12 @@ pub struct User {
 #[derive(Deserialize, Serialize)]
 pub struct UserList {
     pub id: i64,
-    pub name: Option<String>,
-    pub key: Option<String>,
-    pub role: Option<i64>,
+    pub name: String,
+    pub key: String,
+    pub role: i64,
 }
 
 impl User {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
     pub async fn get(client: &Client, id: i64) -> Result<User, RpelError> {
         let stmt = client
             .prepare(
