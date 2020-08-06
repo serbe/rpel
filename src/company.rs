@@ -186,7 +186,7 @@ impl Company {
             .prepare(
                 "
                     DELETE FROM
-                        companyes
+                        companies
                     WHERE
                         id = $1
                 ",
