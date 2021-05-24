@@ -24,15 +24,13 @@ pub mod user;
 
 pub type RpelPool = Pool<NoTls>;
 
-fn get_config(env_str: &str) -> Result<Config, RpelError> {
-    dotenv::dotenv().ok();
-    let cfg = dotenv::var(env_str).unwrap();
-    let config = cfg.parse()?;
+fn get_config(pg_cfg: &str) -> Result<Config, RpelError> {
+    let config = pg_cfg.parse()?;
     Ok(config)
 }
 
-pub fn get_pool(env_str: &str) -> Result<RpelPool, RpelError> {
-    let pg_config = get_config(env_str)?;
+pub fn get_pool(pg_cfg: &str) -> Result<RpelPool, RpelError> {
+    let pg_config = get_config(pg_cfg)?;
     let manager = Manager::new(pg_config, NoTls);
     let pool = Pool::new(manager, 16);
     Ok(pool)
