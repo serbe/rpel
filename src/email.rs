@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Email {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -21,7 +21,8 @@ impl Email {
         Default::default()
     }
 
-    async fn insert(client: &Client, email: Email) -> Result<u64, RpelError> {
+    async fn insert(pool: &Pool<tokio_postgres::NoTls>, email: Email) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,36 +60,40 @@ impl Email {
     }
 
     pub async fn update_contacts(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         id: i64,
         emails: Vec<String>,
     ) -> Result<(), RpelError> {
-        Email::delete_contacts(client, id).await?;
+        Email::delete_contacts(pool, id).await?;
         for value in emails {
             let mut email = Email::new();
             email.contact_id = Some(id);
             email.email = Some(value);
-            Email::insert(client, email).await?;
+            Email::insert(pool, email).await?;
         }
         Ok(())
     }
 
     pub async fn update_companies(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         id: i64,
         emails: Vec<String>,
     ) -> Result<(), RpelError> {
-        Email::delete_companies(client, id).await?;
+        Email::delete_companies(pool, id).await?;
         for value in emails {
             let mut email = Email::new();
             email.company_id = Some(id);
             email.email = Some(value);
-            Email::insert(client, email).await?;
+            Email::insert(pool, email).await?;
         }
         Ok(())
     }
 
-    pub async fn delete_contacts(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete_contacts(
+        pool: &Pool<tokio_postgres::NoTls>,
+        id: i64,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -102,7 +107,11 @@ impl Email {
         Ok(client.execute(&stmt, &[&id]).await?)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete_companies(
+        pool: &Pool<tokio_postgres::NoTls>,
+        id: i64,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

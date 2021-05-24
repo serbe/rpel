@@ -24,7 +24,7 @@
 // // }
 
 // // // GetTcc - get one tcc by id
-// // pub async fn GetTcc(client: &Client, id: i64) -> Result<Tcc, RpelError> {
+// // pub async fn GetTcc(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Tcc, RpelError> {
 // // let client = client.get().await?;
 // // 	let mut tcc = Tcc::new();
 // // 	if id == 0 {
@@ -40,7 +40,7 @@
 // // }
 
 // // // GetTccList - get all tcc for list
-// // pub async fn GetTccList(client: &Client, id: i64) -> Result<TccList, RpelError> {
+// // pub async fn GetTccList(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<TccList, RpelError> {
 // // let client = client.get().await?;
 // // 	let mut tccs = TccList::new();
 // // 	else { for row in &conn.query("
@@ -54,7 +54,7 @@
 // // }
 
 // // // GetTccListAll - get all tcc for list
-// // pub async fn GetTccListAll(client: &Client, id: i64) -> Result<Vec<TccList>> {
+// // pub async fn GetTccListAll(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<TccList>> {
 // // 	let mut tccs = Vec::new();
 // // 	else { for row in &conn.query("
 // // 		Column("id", "address", "contact_id", "note").
@@ -72,7 +72,7 @@
 // // 	if err != nil {
 // // 		errmsg("CreateTcc insert", err)
 // // 	}
-// // 	return tcc.ID, err
+// // 	return tcc.Id, err
 // // }
 
 // // // UpdateTcc - save tcc changes

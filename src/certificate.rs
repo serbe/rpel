@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Certificate {
     #[serde(default)]
     pub id: i64,
@@ -19,7 +19,7 @@ pub struct Certificate {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CertificateList {
     pub id: i64,
     pub num: Option<String>,
@@ -36,8 +36,12 @@ impl Certificate {
         Default::default()
     }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Certificate, RpelError> {
+    pub async fn get(
+        pool: &Pool<tokio_postgres::NoTls>,
+        id: i64,
+    ) -> Result<Certificate, RpelError> {
         let mut certificate = Certificate::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -69,10 +73,11 @@ impl Certificate {
     }
 
     pub async fn insert(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         certificate: Certificate,
     ) -> Result<Certificate, RpelError> {
         let mut certificate = certificate;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -119,7 +124,11 @@ impl Certificate {
         Ok(certificate)
     }
 
-    pub async fn update(client: &Client, certificate: Certificate) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        certificate: Certificate,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -151,7 +160,8 @@ impl Certificate {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -167,8 +177,11 @@ impl Certificate {
 }
 
 impl CertificateList {
-    pub async fn get_all(client: &Client) -> Result<Vec<CertificateList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<CertificateList>, RpelError> {
         let mut certificates = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -205,11 +218,7 @@ impl CertificateList {
                 contact_name: row.try_get(3)?,
                 company_id: row.try_get(4)?,
                 company_name: row.try_get(5)?,
-                cert_date: if let Some(d) = date {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
+                cert_date: date.map(|d| d.format("%Y-%m-%d").to_string()),
                 note: row.try_get(7)?,
             });
         }

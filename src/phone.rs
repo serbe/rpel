@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Phone {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -22,7 +22,8 @@ impl Phone {
         Default::default()
     }
 
-    async fn insert(client: &Client, phone: Phone) -> Result<u64, RpelError> {
+    async fn insert(pool: &Pool<tokio_postgres::NoTls>, phone: Phone) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -63,40 +64,45 @@ impl Phone {
     }
 
     pub async fn update_contacts(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         id: i64,
         fax: bool,
         phones: Vec<i64>,
     ) -> Result<(), RpelError> {
-        Phone::delete_contacts(client, id, fax).await?;
+        Phone::delete_contacts(pool, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
             phone.contact_id = Some(id);
             phone.phone = Some(value);
             phone.fax = fax;
-            Phone::insert(client, phone).await?;
+            Phone::insert(pool, phone).await?;
         }
         Ok(())
     }
 
     pub async fn update_companies(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         id: i64,
         fax: bool,
         phones: Vec<i64>,
     ) -> Result<(), RpelError> {
-        Phone::delete_companies(client, id, fax).await?;
+        Phone::delete_companies(pool, id, fax).await?;
         for value in phones {
             let mut phone = Phone::new();
             phone.company_id = Some(id);
             phone.phone = Some(value);
             phone.fax = fax;
-            Phone::insert(client, phone).await?;
+            Phone::insert(pool, phone).await?;
         }
         Ok(())
     }
 
-    pub async fn delete_contacts(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
+    pub async fn delete_contacts(
+        pool: &Pool<tokio_postgres::NoTls>,
+        id: i64,
+        fax: bool,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -112,7 +118,12 @@ impl Phone {
         Ok(client.execute(&stmt, &[&id, &fax]).await?)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<u64, RpelError> {
+    pub async fn delete_companies(
+        pool: &Pool<tokio_postgres::NoTls>,
+        id: i64,
+        fax: bool,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

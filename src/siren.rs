@@ -1,5 +1,5 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
@@ -37,11 +37,12 @@ pub struct SirenList {
 }
 
 impl Siren {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Siren, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Siren, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -90,8 +91,12 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn insert(client: &Client, siren: Siren) -> Result<Siren, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        siren: Siren,
+    ) -> Result<Siren, RpelError> {
         let mut siren = siren;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -162,7 +167,11 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn update(client: &Client, siren: Siren) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        siren: Siren,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -210,7 +219,8 @@ impl Siren {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -226,8 +236,9 @@ impl Siren {
 }
 
 impl SirenList {
-    pub async fn get_all(client: &Client) -> Result<Vec<SirenList>, RpelError> {
+    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<SirenList>, RpelError> {
         let mut sirens = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -236,7 +247,7 @@ impl SirenList {
                         t.name AS siren_type_name,
                         s.address,
                         c.name AS contact_name,
-                        array_remove(array_agg(ph.phone), NULL) AS phones
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones
                     FROM
                         sirens AS s
                     LEFT JOIN

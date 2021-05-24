@@ -1,12 +1,12 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::email::Email;
 use crate::error::RpelError;
 use crate::phone::Phone;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Contact {
     #[serde(default)]
     pub id: i64,
@@ -29,7 +29,7 @@ pub struct Contact {
     pub educations: Vec<NaiveDate>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ContactList {
     pub id: i64,
     pub name: Option<String>,
@@ -40,7 +40,7 @@ pub struct ContactList {
     pub faxes: Vec<i64>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ContactShort {
     pub id: i64,
     pub name: Option<String>,
@@ -50,11 +50,12 @@ pub struct ContactShort {
 }
 
 impl Contact {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Contact, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Contact, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -69,10 +70,10 @@ impl Contact {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes,
-                        array_remove(array_agg(ed.start_date), NULL) AS educations
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes,
+                        array_remove(array_agg(DISTINCT ed.start_date), NULL) AS educations
                     FROM
                         contacts AS c
                     LEFT JOIN
@@ -111,8 +112,12 @@ impl Contact {
         Ok(contact)
     }
 
-    pub async fn insert(client: &Client, contact: Contact) -> Result<Contact, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        contact: Contact,
+    ) -> Result<Contact, RpelError> {
         let mut contact = contact;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -165,13 +170,17 @@ impl Contact {
             )
             .await?;
         contact.id = row.get(0);
-        Email::update_contacts(client, contact.id, contact.emails.clone()).await?;
-        Phone::update_contacts(client, contact.id, false, contact.phones.clone()).await?;
-        Phone::update_contacts(client, contact.id, true, contact.faxes.clone()).await?;
+        Email::update_contacts(pool, contact.id, contact.emails.clone()).await?;
+        Phone::update_contacts(pool, contact.id, false, contact.phones.clone()).await?;
+        Phone::update_contacts(pool, contact.id, true, contact.faxes.clone()).await?;
         Ok(contact)
     }
 
-    pub async fn update(client: &Client, contact: Contact) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        contact: Contact,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -190,9 +199,9 @@ impl Contact {
                     ",
             )
             .await?;
-        Email::update_contacts(client, contact.id, contact.emails).await?;
-        Phone::update_contacts(client, contact.id, false, contact.phones).await?;
-        Phone::update_contacts(client, contact.id, true, contact.faxes).await?;
+        Email::update_contacts(pool, contact.id, contact.emails).await?;
+        Phone::update_contacts(pool, contact.id, false, contact.phones).await?;
+        Phone::update_contacts(pool, contact.id, true, contact.faxes).await?;
         Ok(client
             .execute(
                 &stmt,
@@ -212,10 +221,11 @@ impl Contact {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
-        Phone::delete_contacts(client, id, true).await?;
-        Phone::delete_contacts(client, id, false).await?;
-        Email::delete_contacts(client, id).await?;
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        Phone::delete_contacts(pool, id, true).await?;
+        Phone::delete_contacts(pool, id, false).await?;
+        Email::delete_contacts(pool, id).await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -231,8 +241,11 @@ impl Contact {
 }
 
 impl ContactList {
-    pub async fn get_all(client: &Client) -> Result<Vec<ContactList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<ContactList>, RpelError> {
         let mut contacts = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -242,8 +255,8 @@ impl ContactList {
                         co.id AS company_id,
                         co.name AS company_name,
                         po.name AS post_name,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes
                     FROM
                         contacts AS c
                     LEFT JOIN
@@ -280,10 +293,11 @@ impl ContactList {
 
 impl ContactShort {
     pub async fn get_by_company(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         company_id: i64,
     ) -> Result<Vec<ContactShort>, RpelError> {
         let mut contacts = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

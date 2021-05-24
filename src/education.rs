@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Education {
     #[serde(default)]
     pub id: i64,
@@ -19,7 +19,7 @@ pub struct Education {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct EducationList {
     pub id: i64,
     pub contact_id: Option<i64>,
@@ -33,7 +33,7 @@ pub struct EducationList {
     pub note: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct EducationShort {
     pub id: i64,
     pub contact_id: Option<i64>,
@@ -42,11 +42,12 @@ pub struct EducationShort {
 }
 
 impl Education {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Education, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Education, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -79,8 +80,12 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn insert(client: &Client, education: Education) -> Result<Education, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        education: Education,
+    ) -> Result<Education, RpelError> {
         let mut education = education;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -127,7 +132,11 @@ impl Education {
         Ok(education)
     }
 
-    pub async fn update(client: &Client, education: Education) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        education: Education,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -159,7 +168,8 @@ impl Education {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -175,8 +185,11 @@ impl Education {
 }
 
 impl EducationList {
-    pub async fn get_all(client: &Client) -> Result<Vec<EducationList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<EducationList>, RpelError> {
         let mut educations = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -209,16 +222,8 @@ impl EducationList {
                 contact_name: row.try_get(2)?,
                 start_date: row.try_get(3)?,
                 end_date: row.try_get(4)?,
-                start_str: if let Some(d) = start_str {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
-                end_str: if let Some(d) = end_str {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
+                start_str: start_str.map(|d| d.format("%Y-%m-%d").to_string()),
+                end_str: end_str.map(|d| d.format("%Y-%m-%d").to_string()),
                 post_id: row.try_get(5)?,
                 post_name: row.try_get(6)?,
                 note: row.try_get(7)?,
@@ -229,8 +234,11 @@ impl EducationList {
 }
 
 impl EducationShort {
-    pub async fn get_near(client: &Client) -> Result<Vec<EducationShort>, RpelError> {
+    pub async fn get_near(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<EducationShort>, RpelError> {
         let mut educations = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Scope {
     #[serde(default)]
     pub id: i64,
@@ -16,7 +16,7 @@ pub struct Scope {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ScopeList {
     pub id: i64,
     pub name: Option<String>,
@@ -24,11 +24,12 @@ pub struct ScopeList {
 }
 
 impl Scope {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Scope, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Scope, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -55,8 +56,12 @@ impl Scope {
         Ok(scope)
     }
 
-    pub async fn insert(client: &Client, scope: Scope) -> Result<Scope, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        scope: Scope,
+    ) -> Result<Scope, RpelError> {
         let mut scope = scope;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -94,7 +99,11 @@ impl Scope {
         Ok(scope)
     }
 
-    pub async fn update(client: &Client, scope: Scope) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        scope: Scope,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -120,7 +129,8 @@ impl Scope {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -136,8 +146,9 @@ impl Scope {
 }
 
 impl ScopeList {
-    pub async fn get_all(client: &Client) -> Result<Vec<ScopeList>, RpelError> {
+    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<ScopeList>, RpelError> {
         let mut scopes = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

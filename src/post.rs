@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Post {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct Post {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PostList {
     pub id: i64,
     pub name: Option<String>,
@@ -26,11 +26,12 @@ pub struct PostList {
 }
 
 impl Post {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Post, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Post, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,8 +60,9 @@ impl Post {
         Ok(post)
     }
 
-    pub async fn insert(client: &Client, post: Post) -> Result<Post, RpelError> {
+    pub async fn insert(pool: &Pool<tokio_postgres::NoTls>, post: Post) -> Result<Post, RpelError> {
         let mut post = post;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -101,7 +103,8 @@ impl Post {
         Ok(post)
     }
 
-    pub async fn update(client: &Client, post: Post) -> Result<u64, RpelError> {
+    pub async fn update(pool: &Pool<tokio_postgres::NoTls>, post: Post) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -129,7 +132,8 @@ impl Post {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -145,8 +149,9 @@ impl Post {
 }
 
 impl PostList {
-    pub async fn get_all(client: &Client) -> Result<Vec<PostList>, RpelError> {
+    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<PostList>, RpelError> {
         let mut posts = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

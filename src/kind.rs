@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Kind {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct Kind {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct KindList {
     pub id: i64,
     pub name: Option<String>,
@@ -26,11 +26,12 @@ pub struct KindList {
 }
 
 impl Kind {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Kind, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Kind, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,8 +60,9 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn insert(client: &Client, kind: Kind) -> Result<Kind, RpelError> {
+    pub async fn insert(pool: &Pool<tokio_postgres::NoTls>, kind: Kind) -> Result<Kind, RpelError> {
         let mut kind = kind;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -101,7 +103,8 @@ impl Kind {
         Ok(kind)
     }
 
-    pub async fn update(client: &Client, kind: Kind) -> Result<u64, RpelError> {
+    pub async fn update(pool: &Pool<tokio_postgres::NoTls>, kind: Kind) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -129,7 +132,8 @@ impl Kind {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -145,8 +149,9 @@ impl Kind {
 }
 
 impl KindList {
-    pub async fn get_all(client: &Client) -> Result<Vec<KindList>, RpelError> {
+    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<KindList>, RpelError> {
         let mut kinds = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

@@ -1,6 +1,8 @@
 use deadpool_postgres::{Manager, Pool};
 use tokio_postgres::{Config, NoTls};
 
+use crate::error::RpelError;
+
 pub mod error;
 
 pub mod certificate;
@@ -21,30 +23,18 @@ pub mod siren_type;
 pub mod tcc;
 pub mod user;
 
-fn get_config() -> Config {
-    let mut config = Config::new();
-    if let Ok(dbname) = dotenv::var("DB_NAME") {
-        config.dbname(&dbname);
-    };
-    if let Ok(user) = dotenv::var("DB_USER") {
-        config.user(&user);
-    };
-    if let Ok(password) = dotenv::var("DB_PASSWORD") {
-        config.password(&password);
-    };
-    if let Ok(host) = dotenv::var("DB_HOST") {
-        config.host(&host);
-    };
-    if let Ok(port) = dotenv::var("DB_PORT") {
-        config.port(port.parse().expect("port need u16 type"));
-    };
-    config
+fn get_config(env_str: &str) -> Result<Config, RpelError> {
+    dotenv::dotenv().ok();
+    let cfg = dotenv::var(env_str).unwrap();
+    let config = cfg.parse()?;
+    Ok(config)
 }
 
-pub fn get_pool() -> Pool {
-    dotenv::dotenv().ok();
-    let manager = Manager::new(get_config(), NoTls);
-    Pool::new(manager, 16)
+pub fn get_pool(env_str: &str) -> Result<Pool<NoTls>, RpelError> {
+    let pg_config = get_config(env_str)?;
+    let manager = Manager::new(pg_config, NoTls);
+    let pool = Pool::new(manager, 16);
+    Ok(pool)
 }
 
 #[cfg(test)]

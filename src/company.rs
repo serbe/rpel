@@ -1,5 +1,5 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::contact::ContactShort;
@@ -8,7 +8,7 @@ use crate::error::RpelError;
 use crate::phone::Phone;
 use crate::practice::PracticeList;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Company {
     #[serde(default)]
     pub id: i64,
@@ -29,7 +29,7 @@ pub struct Company {
     pub contacts: Vec<ContactShort>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct CompanyList {
     pub id: i64,
     pub name: Option<String>,
@@ -42,11 +42,12 @@ pub struct CompanyList {
 }
 
 impl Company {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Company, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Company, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -57,9 +58,9 @@ impl Company {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes
                     FROM
                         companies AS c
                     LEFT JOIN
@@ -76,8 +77,8 @@ impl Company {
             )
             .await?;
         let row = client.query_one(&stmt, &[&id]).await?;
-        let practices = PracticeList::get_by_company(client, id).await?;
-        let contacts = ContactShort::get_by_company(client, id).await?;
+        let practices = PracticeList::get_by_company(pool, id).await?;
+        let contacts = ContactShort::get_by_company(pool, id).await?;
         let company = Company {
             id,
             name: row.try_get(0)?,
@@ -95,8 +96,12 @@ impl Company {
         Ok(company)
     }
 
-    pub async fn insert(client: &Client, company: Company) -> Result<Company, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        company: Company,
+    ) -> Result<Company, RpelError> {
         let mut company = company;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -137,13 +142,17 @@ impl Company {
             )
             .await?;
         company.id = row.get(0);
-        Email::update_companies(client, company.id, company.emails.clone()).await?;
-        Phone::update_companies(client, company.id, false, company.phones.clone()).await?;
-        Phone::update_companies(client, company.id, true, company.faxes.clone()).await?;
+        Email::update_companies(pool, company.id, company.emails.clone()).await?;
+        Phone::update_companies(pool, company.id, false, company.phones.clone()).await?;
+        Phone::update_companies(pool, company.id, true, company.faxes.clone()).await?;
         Ok(company)
     }
 
-    pub async fn update(client: &Client, company: Company) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        company: Company,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -171,17 +180,18 @@ impl Company {
                 ],
             )
             .await?;
-        Email::update_companies(client, company.id, company.emails).await?;
-        Phone::update_companies(client, company.id, false, company.phones).await?;
+        Email::update_companies(pool, company.id, company.emails).await?;
+        Phone::update_companies(pool, company.id, false, company.phones).await?;
 
-        Phone::update_companies(client, company.id, true, company.faxes).await?;
+        Phone::update_companies(pool, company.id, true, company.faxes).await?;
         Ok(result)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
-        Phone::delete_companies(&client, id, true).await?;
-        Phone::delete_companies(&client, id, false).await?;
-        Email::delete_companies(&client, id).await?;
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        Phone::delete_companies(pool, id, true).await?;
+        Phone::delete_companies(pool, id, false).await?;
+        Email::delete_companies(pool, id).await?;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -197,8 +207,11 @@ impl Company {
 }
 
 impl CompanyList {
-    pub async fn get_all(client: &Client) -> Result<Vec<CompanyList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<CompanyList>, RpelError> {
         let mut companies = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -207,10 +220,10 @@ impl CompanyList {
                         c.name,
                         c.address,
                         s.name AS scope_name,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(p.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes,
-                        array_remove(array_agg(pr.date_of_practice), NULL) AS practices
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT p.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes,
+                        array_remove(array_agg(DISTINCT pr.date_of_practice), NULL) AS practices
                     FROM
                         companies AS c
                     LEFT JOIN

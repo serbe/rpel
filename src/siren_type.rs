@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct SirenType {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct SirenType {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SirenTypeList {
     pub id: i64,
     pub name: Option<String>,
@@ -26,11 +26,12 @@ pub struct SirenTypeList {
 }
 
 impl SirenType {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<SirenType, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<SirenType, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -59,8 +60,12 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn insert(client: &Client, siren_type: SirenType) -> Result<SirenType, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        siren_type: SirenType,
+    ) -> Result<SirenType, RpelError> {
         let mut siren_type = siren_type;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -101,7 +106,11 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn update(client: &Client, siren_type: SirenType) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        siren_type: SirenType,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -129,7 +138,8 @@ impl SirenType {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -145,8 +155,11 @@ impl SirenType {
 }
 
 impl SirenTypeList {
-    pub async fn get_all(client: &Client) -> Result<Vec<SirenTypeList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<SirenTypeList>, RpelError> {
         let mut siren_types = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

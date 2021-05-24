@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Practice {
     #[serde(default)]
     pub id: i64,
@@ -19,7 +19,7 @@ pub struct Practice {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct PracticeList {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -32,7 +32,7 @@ pub struct PracticeList {
     pub date_str: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PracticeShort {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -43,11 +43,12 @@ pub struct PracticeShort {
 }
 
 impl Practice {
-    pub fn new() -> Self {
-        Default::default()
-    }
+    // pub fn new() -> Self {
+    //     Default::default()
+    // }
 
-    pub async fn get(client: &Client, id: i64) -> Result<Practice, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Practice, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -80,8 +81,12 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn insert(client: &Client, practice: Practice) -> Result<Practice, RpelError> {
+    pub async fn insert(
+        pool: &Pool<tokio_postgres::NoTls>,
+        practice: Practice,
+    ) -> Result<Practice, RpelError> {
         let mut practice = practice;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -128,7 +133,11 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn update(client: &Client, practice: Practice) -> Result<u64, RpelError> {
+    pub async fn update(
+        pool: &Pool<tokio_postgres::NoTls>,
+        practice: Practice,
+    ) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -160,7 +169,8 @@ impl Practice {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -176,8 +186,11 @@ impl Practice {
 }
 
 impl PracticeList {
-    pub async fn get_all(client: &Client) -> Result<Vec<PracticeList>, RpelError> {
+    pub async fn get_all(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -212,21 +225,18 @@ impl PracticeList {
                 kind_short_name: row.try_get(5)?,
                 date_of_practice: row.try_get(6)?,
                 topic: row.try_get(7)?,
-                date_str: if let Some(d) = date {
-                    Some(d.format("%d.%m.%y").to_string())
-                } else {
-                    None
-                },
+                date_str: date.map(|d| d.format("%Y-%m-%d").to_string()),
             });
         }
         Ok(practices)
     }
 
     pub async fn get_by_company(
-        client: &Client,
+        pool: &Pool<tokio_postgres::NoTls>,
         company_id: i64,
     ) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -263,11 +273,7 @@ impl PracticeList {
                 kind_short_name: row.try_get(5)?,
                 date_of_practice: row.try_get(6)?,
                 topic: row.try_get(7)?,
-                date_str: if let Some(d) = date {
-                    Some(d.format("%d.%m.%y").to_string())
-                } else {
-                    None
-                },
+                date_str: date.map(|d| d.format("%Y-%m-%d").to_string()),
             });
         }
         Ok(practices)
@@ -275,8 +281,11 @@ impl PracticeList {
 }
 
 impl PracticeShort {
-    pub async fn get_near(client: &Client) -> Result<Vec<PracticeShort>, RpelError> {
+    pub async fn get_near(
+        pool: &Pool<tokio_postgres::NoTls>,
+    ) -> Result<Vec<PracticeShort>, RpelError> {
         let mut practices = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "

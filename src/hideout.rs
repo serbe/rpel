@@ -1,7 +1,7 @@
 // package edc
 
 // // Hideout       - защитное сооружение
-// // ID            - номер в базе данных
+// // Id            - номер в базе данных
 // // Num           - Номер убежища в реестре имущества
 // // InvNum        - Инвентарный номер убежища
 // // InvAdd        - дополнительный код инвентарного номера убежища
@@ -90,7 +90,7 @@
 // }
 
 // // GetHideout - get one hideout by id
-// pub async fn GetHideout(client: &Client, id: i64) -> Result<Hideout, RpelError> {
+// pub async fn GetHideout(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Hideout, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideout = Hideout::new();
 // 	if id == 0 {
@@ -106,7 +106,7 @@
 // }
 
 // // GetHideoutList - get all hideout for list
-// pub async fn GetHideoutList(client: &Client, id: i64) -> Result<Vec<HideoutList>> {
+// pub async fn GetHideoutList(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<HideoutList>> {
 // 	let mut $1 = Vec::new();
 // 	for row in &conn.query("
 // 		SELECT
@@ -142,7 +142,7 @@
 // 	if err != nil {
 // 		errmsg("CreateHideout insert", err)
 // 	}
-// 	return hideout.ID, err
+// 	return hideout.Id, err
 // }
 
 // // UpdateHideout - save hideout changes

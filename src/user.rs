@@ -1,10 +1,10 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Client;
+use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::error::RpelError;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct User {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UserList {
     pub id: i64,
     pub name: String,
@@ -26,7 +26,8 @@ pub struct UserList {
 }
 
 impl User {
-    pub async fn get(client: &Client, id: i64) -> Result<User, RpelError> {
+    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<User, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -55,8 +56,9 @@ impl User {
         Ok(user)
     }
 
-    pub async fn insert(client: &Client, user: User) -> Result<User, RpelError> {
+    pub async fn insert(pool: &Pool<tokio_postgres::NoTls>, user: User) -> Result<User, RpelError> {
         let mut user = user;
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -97,7 +99,8 @@ impl User {
         Ok(user)
     }
 
-    pub async fn update(client: &Client, user: User) -> Result<u64, RpelError> {
+    pub async fn update(pool: &Pool<tokio_postgres::NoTls>, user: User) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -125,7 +128,8 @@ impl User {
             .await?)
     }
 
-    pub async fn delete(client: &Client, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
@@ -141,8 +145,9 @@ impl User {
 }
 
 impl UserList {
-    pub async fn get_all(client: &Client) -> Result<Vec<UserList>, RpelError> {
+    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<UserList>, RpelError> {
         let mut users = Vec::new();
+        let client = pool.get().await?;
         let stmt = client
             .prepare(
                 "
