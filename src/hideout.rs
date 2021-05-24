@@ -90,7 +90,7 @@
 // }
 
 // // GetHideout - get one hideout by id
-// pub async fn GetHideout(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Hideout, RpelError> {
+// pub async fn GetHideout(pool: &RpelPool, id: i64) -> Result<Hideout, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideout = Hideout::new();
 // 	if id == 0 {
@@ -106,7 +106,7 @@
 // }
 
 // // GetHideoutList - get all hideout for list
-// pub async fn GetHideoutList(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<HideoutList>> {
+// pub async fn GetHideoutList(pool: &RpelPool, id: i64) -> Result<Vec<HideoutList>> {
 // 	let mut $1 = Vec::new();
 // 	for row in &conn.query("
 // 		SELECT

@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct SirenType {
@@ -30,7 +29,7 @@ impl SirenType {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<SirenType, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<SirenType, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -60,10 +59,7 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
-        siren_type: SirenType,
-    ) -> Result<SirenType, RpelError> {
+    pub async fn insert(pool: &RpelPool, siren_type: SirenType) -> Result<SirenType, RpelError> {
         let mut siren_type = siren_type;
         let client = pool.get().await?;
         let stmt = client
@@ -106,10 +102,7 @@ impl SirenType {
         Ok(siren_type)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        siren_type: SirenType,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, siren_type: SirenType) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -138,7 +131,7 @@ impl SirenType {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -155,9 +148,7 @@ impl SirenType {
 }
 
 impl SirenTypeList {
-    pub async fn get_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SirenTypeList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<SirenTypeList>, RpelError> {
         let mut siren_types = Vec::new();
         let client = pool.get().await?;
         let stmt = client

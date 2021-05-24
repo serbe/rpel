@@ -1,12 +1,10 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::contact::ContactShort;
-use crate::email::Email;
-use crate::error::RpelError;
-use crate::phone::Phone;
-use crate::practice::PracticeList;
+use crate::{
+    contact::ContactShort, email::Email, error::RpelError, phone::Phone, practice::PracticeList,
+    RpelPool,
+};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Company {
@@ -46,7 +44,7 @@ impl Company {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Company, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Company, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -96,10 +94,7 @@ impl Company {
         Ok(company)
     }
 
-    pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
-        company: Company,
-    ) -> Result<Company, RpelError> {
+    pub async fn insert(pool: &RpelPool, company: Company) -> Result<Company, RpelError> {
         let mut company = company;
         let client = pool.get().await?;
         let stmt = client
@@ -148,10 +143,7 @@ impl Company {
         Ok(company)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        company: Company,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, company: Company) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -187,7 +179,7 @@ impl Company {
         Ok(result)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         Phone::delete_companies(pool, id, true).await?;
         Phone::delete_companies(pool, id, false).await?;
         Email::delete_companies(pool, id).await?;
@@ -207,9 +199,7 @@ impl Company {
 }
 
 impl CompanyList {
-    pub async fn get_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<CompanyList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<CompanyList>, RpelError> {
         let mut companies = Vec::new();
         let client = pool.get().await?;
         let stmt = client

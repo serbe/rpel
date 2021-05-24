@@ -1,7 +1,6 @@
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SelectItem {
@@ -9,10 +8,7 @@ pub struct SelectItem {
     pub name: Option<String>,
 }
 
-async fn select_name(
-    pool: &Pool<tokio_postgres::NoTls>,
-    name: &str,
-) -> Result<Vec<SelectItem>, RpelError> {
+async fn select_name(pool: &RpelPool, name: &str) -> Result<Vec<SelectItem>, RpelError> {
     let client = pool.get().await?;
     let stmt = client
         .prepare(
@@ -42,34 +38,23 @@ async fn select_name(
 }
 
 impl SelectItem {
-    pub async fn company_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn company_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "companies").await?)
     }
 
-    pub async fn contact_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn contact_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "contacts").await?)
     }
 
-    pub async fn department_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn department_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "departments").await?)
     }
 
-    pub async fn kind_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn kind_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "kinds").await?)
     }
 
-    pub async fn post_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-        go: bool,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn post_all(pool: &RpelPool, go: bool) -> Result<Vec<SelectItem>, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -96,21 +81,15 @@ impl SelectItem {
         Ok(posts)
     }
 
-    pub async fn rank_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn rank_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "ranks").await?)
     }
 
-    pub async fn scope_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn scope_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "scopes").await?)
     }
 
-    pub async fn siren_type_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<SelectItem>, RpelError> {
+    pub async fn siren_type_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
         Ok(select_name(pool, "siren_types").await?)
     }
 }

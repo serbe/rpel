@@ -20,7 +20,7 @@
 // }
 
 // // GetHideoutType - get one hideoutType by id
-// pub async fn GetHideoutType(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<HideoutType, RpelError> {
+// pub async fn GetHideoutType(pool: &RpelPool, id: i64) -> Result<HideoutType, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideoutType = HideoutType::new();
 // 	if id == 0 {
@@ -36,7 +36,7 @@
 // }
 
 // // GetHideoutTypeList - get hideoutType for list by id
-// pub async fn GetHideoutTypeList(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<HideoutTypeList, RpelError> {
+// pub async fn GetHideoutTypeList(pool: &RpelPool, id: i64) -> Result<HideoutTypeList, RpelError> {
 // // let client = client.get().await?;
 // 	let mut hideoutType = HideoutTypeList::new();
 // 	else { for row in &conn.query("
@@ -50,7 +50,7 @@
 // }
 
 // // GetHideoutTypeListAll - get all hideoutType for list
-// pub async fn GetHideoutTypeListAll(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<HideoutTypeList>> {
+// pub async fn GetHideoutTypeListAll(pool: &RpelPool, id: i64) -> Result<Vec<HideoutTypeList>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name", "note").
@@ -63,7 +63,7 @@
 // }
 
 // // GetHideoutTypeSelect - get hideoutType for select by id
-// pub async fn GetHideoutTypeSelect(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<SelectItem>> {
+// pub async fn GetHideoutTypeSelect(pool: &RpelPool, id: i64) -> Result<Vec<SelectItem>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name").
@@ -76,7 +76,7 @@
 // }
 
 // // GetHideoutTypeSelectAll - get all hideoutType for select
-// pub async fn GetHideoutTypeSelectAll(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Vec<SelectItem>> {
+// pub async fn GetHideoutTypeSelectAll(pool: &RpelPool, id: i64) -> Result<Vec<SelectItem>> {
 // 	let mut hideoutTypes = Vec::new();
 // 	else { for row in &conn.query("
 // 		Column("id", "name").

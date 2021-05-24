@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Department {
@@ -28,7 +27,7 @@ impl Department {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Department, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Department, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -56,10 +55,7 @@ impl Department {
         Ok(department)
     }
 
-    pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
-        department: Department,
-    ) -> Result<Department, RpelError> {
+    pub async fn insert(pool: &RpelPool, department: Department) -> Result<Department, RpelError> {
         let mut department = department;
         let client = pool.get().await?;
         let stmt = client
@@ -99,10 +95,7 @@ impl Department {
         Ok(department)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        department: Department,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, department: Department) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -129,7 +122,7 @@ impl Department {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -146,9 +139,7 @@ impl Department {
 }
 
 impl DepartmentList {
-    pub async fn get_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<DepartmentList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<DepartmentList>, RpelError> {
         let mut departments = Vec::new();
         let client = pool.get().await?;
         let stmt = client

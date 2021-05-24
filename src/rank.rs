@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Rank {
@@ -28,7 +27,7 @@ impl Rank {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Rank, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Rank, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -56,7 +55,7 @@ impl Rank {
         Ok(rank)
     }
 
-    pub async fn insert(pool: &Pool<tokio_postgres::NoTls>, rank: Rank) -> Result<Rank, RpelError> {
+    pub async fn insert(pool: &RpelPool, rank: Rank) -> Result<Rank, RpelError> {
         let mut rank = rank;
         let client = pool.get().await?;
         let stmt = client
@@ -96,7 +95,7 @@ impl Rank {
         Ok(rank)
     }
 
-    pub async fn update(pool: &Pool<tokio_postgres::NoTls>, rank: Rank) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, rank: Rank) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -123,7 +122,7 @@ impl Rank {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -140,7 +139,7 @@ impl Rank {
 }
 
 impl RankList {
-    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<RankList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<RankList>, RpelError> {
         let mut ranks = Vec::new();
         let client = pool.get().await?;
         let stmt = client

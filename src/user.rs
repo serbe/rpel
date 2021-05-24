@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
@@ -26,7 +25,7 @@ pub struct UserList {
 }
 
 impl User {
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<User, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<User, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -56,7 +55,7 @@ impl User {
         Ok(user)
     }
 
-    pub async fn insert(pool: &Pool<tokio_postgres::NoTls>, user: User) -> Result<User, RpelError> {
+    pub async fn insert(pool: &RpelPool, user: User) -> Result<User, RpelError> {
         let mut user = user;
         let client = pool.get().await?;
         let stmt = client
@@ -99,7 +98,7 @@ impl User {
         Ok(user)
     }
 
-    pub async fn update(pool: &Pool<tokio_postgres::NoTls>, user: User) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, user: User) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -128,7 +127,7 @@ impl User {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -145,7 +144,7 @@ impl User {
 }
 
 impl UserList {
-    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<UserList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<UserList>, RpelError> {
         let mut users = Vec::new();
         let client = pool.get().await?;
         let stmt = client

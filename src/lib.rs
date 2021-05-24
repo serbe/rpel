@@ -3,14 +3,13 @@ use tokio_postgres::{Config, NoTls};
 
 use crate::error::RpelError;
 
-pub mod error;
-
 pub mod certificate;
 pub mod company;
 pub mod contact;
 pub mod department;
 pub mod education;
 pub mod email;
+pub mod error;
 pub mod kind;
 pub mod phone;
 pub mod post;
@@ -23,6 +22,8 @@ pub mod siren_type;
 pub mod tcc;
 pub mod user;
 
+pub type RpelPool = Pool<NoTls>;
+
 fn get_config(env_str: &str) -> Result<Config, RpelError> {
     dotenv::dotenv().ok();
     let cfg = dotenv::var(env_str).unwrap();
@@ -30,7 +31,7 @@ fn get_config(env_str: &str) -> Result<Config, RpelError> {
     Ok(config)
 }
 
-pub fn get_pool(env_str: &str) -> Result<Pool<NoTls>, RpelError> {
+pub fn get_pool(env_str: &str) -> Result<RpelPool, RpelError> {
     let pg_config = get_config(env_str)?;
     let manager = Manager::new(pg_config, NoTls);
     let pool = Pool::new(manager, 16);

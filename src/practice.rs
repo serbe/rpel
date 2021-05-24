@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Practice {
@@ -47,7 +46,7 @@ impl Practice {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Practice, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Practice, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -81,10 +80,7 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
-        practice: Practice,
-    ) -> Result<Practice, RpelError> {
+    pub async fn insert(pool: &RpelPool, practice: Practice) -> Result<Practice, RpelError> {
         let mut practice = practice;
         let client = pool.get().await?;
         let stmt = client
@@ -133,10 +129,7 @@ impl Practice {
         Ok(practice)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        practice: Practice,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, practice: Practice) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -169,7 +162,7 @@ impl Practice {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -186,9 +179,7 @@ impl Practice {
 }
 
 impl PracticeList {
-    pub async fn get_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<PracticeList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
         let client = pool.get().await?;
         let stmt = client
@@ -232,7 +223,7 @@ impl PracticeList {
     }
 
     pub async fn get_by_company(
-        pool: &Pool<tokio_postgres::NoTls>,
+        pool: &RpelPool,
         company_id: i64,
     ) -> Result<Vec<PracticeList>, RpelError> {
         let mut practices = Vec::new();
@@ -281,9 +272,7 @@ impl PracticeList {
 }
 
 impl PracticeShort {
-    pub async fn get_near(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<PracticeShort>, RpelError> {
+    pub async fn get_near(pool: &RpelPool) -> Result<Vec<PracticeShort>, RpelError> {
         let mut practices = Vec::new();
         let client = pool.get().await?;
         let stmt = client

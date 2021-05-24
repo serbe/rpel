@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDate, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Certificate {
@@ -36,10 +35,7 @@ impl Certificate {
         Default::default()
     }
 
-    pub async fn get(
-        pool: &Pool<tokio_postgres::NoTls>,
-        id: i64,
-    ) -> Result<Certificate, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Certificate, RpelError> {
         let mut certificate = Certificate::new();
         let client = pool.get().await?;
         let stmt = client
@@ -73,7 +69,7 @@ impl Certificate {
     }
 
     pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
+        pool: &RpelPool,
         certificate: Certificate,
     ) -> Result<Certificate, RpelError> {
         let mut certificate = certificate;
@@ -124,10 +120,7 @@ impl Certificate {
         Ok(certificate)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        certificate: Certificate,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, certificate: Certificate) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -160,7 +153,7 @@ impl Certificate {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -177,9 +170,7 @@ impl Certificate {
 }
 
 impl CertificateList {
-    pub async fn get_all(
-        pool: &Pool<tokio_postgres::NoTls>,
-    ) -> Result<Vec<CertificateList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<CertificateList>, RpelError> {
         let mut certificates = Vec::new();
         let client = pool.get().await?;
         let stmt = client

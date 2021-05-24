@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Email {
@@ -21,7 +20,7 @@ impl Email {
         Default::default()
     }
 
-    async fn insert(pool: &Pool<tokio_postgres::NoTls>, email: Email) -> Result<u64, RpelError> {
+    async fn insert(pool: &RpelPool, email: Email) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -60,7 +59,7 @@ impl Email {
     }
 
     pub async fn update_contacts(
-        pool: &Pool<tokio_postgres::NoTls>,
+        pool: &RpelPool,
         id: i64,
         emails: Vec<String>,
     ) -> Result<(), RpelError> {
@@ -75,7 +74,7 @@ impl Email {
     }
 
     pub async fn update_companies(
-        pool: &Pool<tokio_postgres::NoTls>,
+        pool: &RpelPool,
         id: i64,
         emails: Vec<String>,
     ) -> Result<(), RpelError> {
@@ -89,10 +88,7 @@ impl Email {
         Ok(())
     }
 
-    pub async fn delete_contacts(
-        pool: &Pool<tokio_postgres::NoTls>,
-        id: i64,
-    ) -> Result<u64, RpelError> {
+    pub async fn delete_contacts(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -107,10 +103,7 @@ impl Email {
         Ok(client.execute(&stmt, &[&id]).await?)
     }
 
-    pub async fn delete_companies(
-        pool: &Pool<tokio_postgres::NoTls>,
-        id: i64,
-    ) -> Result<u64, RpelError> {
+    pub async fn delete_companies(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(

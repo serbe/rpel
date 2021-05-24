@@ -1,8 +1,7 @@
 use chrono::{Local, NaiveDateTime};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-use crate::error::RpelError;
+use crate::{error::RpelError, RpelPool};
 
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Siren {
@@ -41,7 +40,7 @@ impl Siren {
     //     Default::default()
     // }
 
-    pub async fn get(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<Siren, RpelError> {
+    pub async fn get(pool: &RpelPool, id: i64) -> Result<Siren, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -91,10 +90,7 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn insert(
-        pool: &Pool<tokio_postgres::NoTls>,
-        siren: Siren,
-    ) -> Result<Siren, RpelError> {
+    pub async fn insert(pool: &RpelPool, siren: Siren) -> Result<Siren, RpelError> {
         let mut siren = siren;
         let client = pool.get().await?;
         let stmt = client
@@ -167,10 +163,7 @@ impl Siren {
         Ok(siren)
     }
 
-    pub async fn update(
-        pool: &Pool<tokio_postgres::NoTls>,
-        siren: Siren,
-    ) -> Result<u64, RpelError> {
+    pub async fn update(pool: &RpelPool, siren: Siren) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -219,7 +212,7 @@ impl Siren {
             .await?)
     }
 
-    pub async fn delete(pool: &Pool<tokio_postgres::NoTls>, id: i64) -> Result<u64, RpelError> {
+    pub async fn delete(pool: &RpelPool, id: i64) -> Result<u64, RpelError> {
         let client = pool.get().await?;
         let stmt = client
             .prepare(
@@ -236,7 +229,7 @@ impl Siren {
 }
 
 impl SirenList {
-    pub async fn get_all(pool: &Pool<tokio_postgres::NoTls>) -> Result<Vec<SirenList>, RpelError> {
+    pub async fn get_all(pool: &RpelPool) -> Result<Vec<SirenList>, RpelError> {
         let mut sirens = Vec::new();
         let client = pool.get().await?;
         let stmt = client
