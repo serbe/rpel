@@ -22,7 +22,7 @@ pub mod siren_type;
 pub mod tcc;
 pub mod user;
 
-pub type RpelPool = Pool<NoTls>;
+pub type RpelPool = Pool;
 
 fn get_config(pg_cfg: &str) -> Result<Config, RpelError> {
     let config = pg_cfg.parse()?;
