@@ -11,6 +11,7 @@ pub struct Company {
     #[serde(default)]
     pub id: i64,
     pub name: Option<String>,
+    pub fullname: Option<String>,
     pub address: Option<String>,
     pub scope_id: Option<i64>,
     pub note: Option<String>,
@@ -31,6 +32,7 @@ pub struct Company {
 pub struct CompanyList {
     pub id: i64,
     pub name: Option<String>,
+    pub fullname: Option<String>,
     pub address: Option<String>,
     pub scope_name: Option<String>,
     pub emails: Vec<String>,
@@ -52,6 +54,7 @@ impl Company {
                     SELECT
                         c.name,
                         c.address,
+                        c.fullname,
                         c.scope_id,
                         c.note,
                         c.created_at,
@@ -80,14 +83,15 @@ impl Company {
         let company = Company {
             id,
             name: row.try_get(0)?,
-            address: row.try_get(1)?,
-            scope_id: row.try_get(2)?,
-            note: row.try_get(3)?,
-            created_at: row.try_get(4)?,
-            updated_at: row.try_get(5)?,
-            emails: row.try_get(6)?,
-            phones: row.try_get(7)?,
-            faxes: row.try_get(8)?,
+            fullname: row.try_get(1)?,
+            address: row.try_get(2)?,
+            scope_id: row.try_get(3)?,
+            note: row.try_get(4)?,
+            created_at: row.try_get(5)?,
+            updated_at: row.try_get(6)?,
+            emails: row.try_get(7)?,
+            phones: row.try_get(8)?,
+            faxes: row.try_get(9)?,
             practices,
             contacts,
         };
@@ -103,6 +107,7 @@ impl Company {
                     INSERT INTO companies
                     (
                         name,
+                        fullname,
                         address,
                         scope_id,
                         note,
@@ -116,7 +121,8 @@ impl Company {
                         $3,
                         $4,
                         $5,
-                        $6
+                        $6,
+                        $7
                     )
                     RETURNING
                         id
@@ -128,6 +134,7 @@ impl Company {
                 &stmt,
                 &[
                     &company.name,
+                    &company.fullname,
                     &company.address,
                     &company.scope_id,
                     &company.note,
@@ -150,10 +157,11 @@ impl Company {
                 "
                     UPDATE companies SET
                         name = $2,
-                        address = $3,
-                        scope_id = $4,
-                        note = $5,
-                        updated_at = $6
+                        fullname = $3,
+                        address = $4,
+                        scope_id = $5,
+                        note = $6,
+                        updated_at = $7
                     WHERE
                         id = $1
                 ",
@@ -165,6 +173,7 @@ impl Company {
                 &[
                     &company.id,
                     &company.name,
+                    &company.fullname,
                     &company.address,
                     &company.scope_id,
                     &company.note,
@@ -208,6 +217,7 @@ impl CompanyList {
                     SELECT
                         c.id,
                         c.name,
+                        c.fullname,
                         c.address,
                         s.name AS scope_name,
                         array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
@@ -238,12 +248,13 @@ impl CompanyList {
             companies.push(CompanyList {
                 id: row.try_get(0)?,
                 name: row.try_get(1)?,
-                address: row.try_get(2)?,
-                scope_name: row.try_get(3)?,
-                emails: row.try_get(4)?,
-                phones: row.try_get(5)?,
-                faxes: row.try_get(6)?,
-                practices: row.try_get(7)?,
+                fullname: row.try_get(2)?,
+                address: row.try_get(3)?,
+                scope_name: row.try_get(4)?,
+                emails: row.try_get(5)?,
+                phones: row.try_get(6)?,
+                faxes: row.try_get(7)?,
+                practices: row.try_get(8)?,
             });
         }
         Ok(companies)
