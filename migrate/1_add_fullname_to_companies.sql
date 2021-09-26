@@ -1,1 +1,1 @@
-ALTER TABLE companies ADD COLUMN fullname TEXT constraint;
+ALTER TABLE companies ADD COLUMN fullname TEXT;
