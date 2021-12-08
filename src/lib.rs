@@ -1,5 +1,7 @@
-use deadpool_postgres::{Manager, Pool};
-use tokio_postgres::{Config, NoTls};
+use deadpool_postgres::{Pool, Runtime};
+use dotenv::dotenv;
+use serde::Deserialize;
+use tokio_postgres::NoTls;
 
 use crate::error::RpelError;
 
@@ -24,15 +26,23 @@ pub mod user;
 
 pub type RpelPool = Pool;
 
-fn get_config(pg_cfg: &str) -> Result<Config, RpelError> {
-    let config = pg_cfg.parse()?;
-    Ok(config)
+#[derive(Debug, Deserialize)]
+struct Config {
+    pg: deadpool_postgres::Config,
 }
 
-pub fn get_pool(pg_cfg: &str) -> Result<RpelPool, RpelError> {
-    let pg_config = get_config(pg_cfg)?;
-    let manager = Manager::new(pg_config, NoTls);
-    let pool = Pool::new(manager, 16);
+impl Config {
+    fn from_env() -> Result<Self, RpelError> {
+        let mut cfg = config::Config::new();
+        cfg.merge(config::Environment::new().separator("__"))?;
+        Ok(cfg.try_into()?)
+    }
+}
+
+pub fn get_pool() -> Result<RpelPool, RpelError> {
+    dotenv().ok();
+    let cfg = Config::from_env()?;
+    let pool = cfg.pg.create_pool(Some(Runtime::Tokio1), NoTls)?;
     Ok(pool)
 }
 
