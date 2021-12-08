@@ -1,6 +1,4 @@
-use deadpool_postgres::{Pool, Runtime};
-use dotenv::dotenv;
-use serde::Deserialize;
+use deadpool_postgres::{Config, Pool, Runtime};
 use tokio_postgres::NoTls;
 
 use crate::error::RpelError;
@@ -26,23 +24,33 @@ pub mod user;
 
 pub type RpelPool = Pool;
 
-#[derive(Debug, Deserialize)]
-struct Config {
-    pg: deadpool_postgres::Config,
+fn option_str(value: Option<&str>) -> Option<String> {
+    value.map(|v| v.to_owned())
 }
 
-impl Config {
-    fn from_env() -> Result<Self, RpelError> {
-        let mut cfg = config::Config::new();
-        cfg.merge(config::Environment::new().separator("__"))?;
-        Ok(cfg.try_into()?)
-    }
+fn get_config(pg_cfg: &str) -> Result<Config, RpelError> {
+    let tokio_cfg = pg_cfg.parse::<tokio_postgres::Config>()?;
+    let mut cfg = Config::new();
+    cfg.user = option_str(tokio_cfg.get_user());
+    cfg.password = tokio_cfg
+        .get_password()
+        .map(String::from_utf8_lossy)
+        .map(|cow| cow.to_string());
+    cfg.dbname = option_str(tokio_cfg.get_dbname());
+    cfg.options = option_str(tokio_cfg.get_options());
+    cfg.application_name = option_str(tokio_cfg.get_application_name());
+    // cfg.ssl_mode = tokio_cfg.get_ssl_mode();
+    cfg.host = tokio_cfg
+        .get_hosts()
+        .first()
+        .map(|tokio_postgres::config::Host::Tcp(host)| host.to_string());
+    cfg.port = tokio_cfg.get_ports().first().cloned();
+    Ok(cfg)
 }
 
-pub fn get_pool() -> Result<RpelPool, RpelError> {
-    dotenv().ok();
-    let cfg = Config::from_env()?;
-    let pool = cfg.pg.create_pool(Some(Runtime::Tokio1), NoTls)?;
+pub fn get_pool(pg_cfg: &str) -> Result<RpelPool, RpelError> {
+    let cfg = get_config(pg_cfg)?;
+    let pool = cfg.create_pool(Some(Runtime::Tokio1), NoTls)?;
     Ok(pool)
 }
 
