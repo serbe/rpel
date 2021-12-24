@@ -1,5 +1,5 @@
 use deadpool_postgres::{Config, Pool, Runtime};
-use tokio_postgres::NoTls;
+use tokio_postgres::{NoTls, config::Host};
 
 use crate::error::RpelError;
 
@@ -43,7 +43,11 @@ fn get_config(pg_cfg: &str) -> Result<Config, RpelError> {
     cfg.host = tokio_cfg
         .get_hosts()
         .first()
-        .map(|tokio_postgres::config::Host::Tcp(host)| host.to_string());
+        .map(|host| match host {
+            Host::Tcp(host) => host.to_string(),
+            #[cfg(unix)]
+            Host::Unix(buf) => buf.to_string_lossy().to_string(),
+        });
     cfg.port = tokio_cfg.get_ports().first().cloned();
     Ok(cfg)
 }
