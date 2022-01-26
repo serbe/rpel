@@ -53,8 +53,8 @@ impl Company {
                 "
                     SELECT
                         c.name,
-                        c.address,
                         c.fullname,
+                        c.address,
                         c.scope_id,
                         c.note,
                         c.created_at,
