@@ -37,6 +37,8 @@ pub struct EducationShort {
     pub id: i64,
     pub contact_id: Option<i64>,
     pub contact_name: Option<String>,
+    pub company_id: Option<i64>,
+    pub company_name: Option<String>,
     pub start_date: Option<NaiveDate>,
 }
 
@@ -234,12 +236,16 @@ impl EducationShort {
                     SELECT
                         e.id,
                         e.contact_id,
-                        c.name AS contact_name,
+                        p.name AS contact_name,
+                        c.id AS company_id,
+                        c.name AS company_name,
                         e.start_date
                     FROM
                         educations AS e
                     LEFT JOIN
-                        contacts AS c ON c.id = e.contact_id
+                        contacts AS p ON p.id = e.contact_id
+                    LEFT JOIN
+                        companies AS c ON c.id = p.company_id
                     WHERE
                         e.start_date > TIMESTAMP 'now'::timestamp - '1 month'::interval
                     ORDER BY
@@ -253,7 +259,9 @@ impl EducationShort {
                 id: row.try_get(0)?,
                 contact_id: row.try_get(1)?,
                 contact_name: row.try_get(2)?,
-                start_date: row.try_get(3)?,
+                company_id: row.try_get(3)?,
+                company_name: row.try_get(4)?,
+                start_date: row.try_get(5)?,
             });
         }
         Ok(educations)
