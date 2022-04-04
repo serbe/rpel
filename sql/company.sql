@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS
     companies (
         id         bigserial PRIMARY KEY,
         name       text,
-        fullname   text,
+        full_name  text,
         address    text,
         scope_id   bigint,
         note       text,

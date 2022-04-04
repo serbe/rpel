@@ -11,7 +11,7 @@ pub struct Company {
     #[serde(default)]
     pub id: i64,
     pub name: Option<String>,
-    pub fullname: Option<String>,
+    pub full_name: Option<String>,
     pub address: Option<String>,
     pub scope_id: Option<i64>,
     pub note: Option<String>,
@@ -32,7 +32,7 @@ pub struct Company {
 pub struct CompanyList {
     pub id: i64,
     pub name: Option<String>,
-    pub fullname: Option<String>,
+    pub full_name: Option<String>,
     pub address: Option<String>,
     pub scope_name: Option<String>,
     pub emails: Vec<String>,
@@ -53,7 +53,7 @@ impl Company {
                 "
                     SELECT
                         c.name,
-                        c.fullname,
+                        c.full_name,
                         c.address,
                         c.scope_id,
                         c.note,
@@ -83,7 +83,7 @@ impl Company {
         let company = Company {
             id,
             name: row.try_get(0)?,
-            fullname: row.try_get(1)?,
+            full_name: row.try_get(1)?,
             address: row.try_get(2)?,
             scope_id: row.try_get(3)?,
             note: row.try_get(4)?,
@@ -107,7 +107,7 @@ impl Company {
                     INSERT INTO companies
                     (
                         name,
-                        fullname,
+                        full_name,
                         address,
                         scope_id,
                         note,
@@ -134,7 +134,7 @@ impl Company {
                 &stmt,
                 &[
                     &company.name,
-                    &company.fullname,
+                    &company.full_name,
                     &company.address,
                     &company.scope_id,
                     &company.note,
@@ -155,9 +155,9 @@ impl Company {
         let stmt = client
             .prepare(
                 "
-                    UPDATE companies SET
+                    UPDATE companies SET    
                         name = $2,
-                        fullname = $3,
+                        full_name = $3,
                         address = $4,
                         scope_id = $5,
                         note = $6,
@@ -173,7 +173,7 @@ impl Company {
                 &[
                     &company.id,
                     &company.name,
-                    &company.fullname,
+                    &company.full_name,
                     &company.address,
                     &company.scope_id,
                     &company.note,
@@ -217,7 +217,7 @@ impl CompanyList {
                     SELECT
                         c.id,
                         c.name,
-                        c.fullname,
+                        c.full_name,
                         c.address,
                         s.name AS scope_name,
                         array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
@@ -248,7 +248,7 @@ impl CompanyList {
             companies.push(CompanyList {
                 id: row.try_get(0)?,
                 name: row.try_get(1)?,
-                fullname: row.try_get(2)?,
+                full_name: row.try_get(2)?,
                 address: row.try_get(3)?,
                 scope_name: row.try_get(4)?,
                 emails: row.try_get(5)?,
