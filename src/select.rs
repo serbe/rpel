@@ -39,19 +39,19 @@ async fn select_name(pool: &RpelPool, name: &str) -> Result<Vec<SelectItem>, Rpe
 
 impl SelectItem {
     pub async fn company_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "companies").await?)
+        select_name(pool, "companies").await
     }
 
     pub async fn contact_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "contacts").await?)
+        select_name(pool, "contacts").await
     }
 
     pub async fn department_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "departments").await?)
+        select_name(pool, "departments").await
     }
 
     pub async fn kind_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "kinds").await?)
+        select_name(pool, "kinds").await
     }
 
     pub async fn post_all(pool: &RpelPool, go: bool) -> Result<Vec<SelectItem>, RpelError> {
@@ -82,14 +82,14 @@ impl SelectItem {
     }
 
     pub async fn rank_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "ranks").await?)
+        select_name(pool, "ranks").await
     }
 
     pub async fn scope_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "scopes").await?)
+        select_name(pool, "scopes").await
     }
 
     pub async fn siren_type_all(pool: &RpelPool) -> Result<Vec<SelectItem>, RpelError> {
-        Ok(select_name(pool, "siren_types").await?)
+        select_name(pool, "siren_types").await
     }
 }
