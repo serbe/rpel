@@ -18,11 +18,10 @@ async fn select_name(pool: &RpelPool, name: &str) -> Result<Vec<SelectItem>, Rpe
                     id,
                     name
                 FROM
-                    {}
+                    {name}
                 ORDER BY
                     name ASC
-            ",
-                name
+            "
             )
             .as_str(),
         )
